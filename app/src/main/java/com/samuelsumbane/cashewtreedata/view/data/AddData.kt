@@ -3,6 +3,7 @@ package com.samuelsumbane.cashewtreedata.view.data
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +30,7 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
+import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,6 +40,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
@@ -87,6 +90,10 @@ fun AddResearchData() {
     var showQualitiesDropDown by remember { mutableStateOf(false) }
     var showSelectDateDropDown by remember { mutableStateOf(false) }
 
+    var formersColumnZindex by remember { mutableFloatStateOf(0f) }
+    var formerName by remember { mutableStateOf("Selecione o agricultor") }
+    var formderId by remember { mutableIntStateOf(0) }
+
     val navigator = LocalNavigator.currentOrThrow
     val cashewTreeRepo = CashewTreeRepository
     val formersRepo = FormersRepo
@@ -125,7 +132,9 @@ fun AddResearchData() {
                 modifier = Modifier
 //                .padding(innerPadding)
                     .fillMaxSize()
-//                .background(Color.DarkGray),
+                    .zIndex(1f)
+
+                .background(Color.DarkGray),
             ) {
                 Row(
                     modifier = Modifier
@@ -143,6 +152,15 @@ fun AddResearchData() {
 //                ) {
                 CustomLazyColumn {
                     items(1) {
+
+                        DropDownComponent(
+                            title = "Agricultor",
+                            selectedOptionText = formerName
+                        ) {
+                            formersColumnZindex = 2f
+                        }
+
+
                         AppTextInput(
                             inputLabel = "Localização",
                             value = location
@@ -284,7 +302,7 @@ fun AddResearchData() {
                 modifier = Modifier
                     .padding()
                     .fillMaxSize()
-                    .zIndex(2f)
+                    .zIndex(formersColumnZindex)
                     .background(Color.Black.copy(alpha = 0.9f))
             ) {
                 Row(
@@ -305,9 +323,32 @@ fun AddResearchData() {
                     )
                 }
 
-                CustomLazyColumn {
-                items(searchedFormers) {
-                        FormerRowItem(it.name, it.age)
+                CustomLazyColumn(spacedBy = 12.dp) {
+                    items(searchedFormers) {
+                        FormerRowItem(
+                            name = it.name,
+                            age = it.age,
+                            modifier = Modifier
+                                .clickable {
+                                    formerName = it.name
+//                                    formderId = it
+                                    formersColumnZindex = 0f
+                                }
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+//                        .background(Color.Green)
+                    ,
+                    horizontalArrangement = Arrangement.Center
+                ) {
+                    OutlinedButton(
+                        onClick = { formersColumnZindex = 0f }
+                    ) {
+                        Text("Fechar")
                     }
                 }
             }
@@ -318,12 +359,13 @@ fun AddResearchData() {
 
 @Composable
 fun CustomLazyColumn(
+    spacedBy: Dp = 20.dp,
     content: LazyListScope.() -> Unit
 ) {
     LazyColumn(
         modifier = Modifier
             .padding(top = 30.dp),
-        verticalArrangement = Arrangement.spacedBy(20.dp)
+        verticalArrangement = Arrangement.spacedBy(spacedBy)
     ) {
         content()
     }

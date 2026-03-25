@@ -1,6 +1,7 @@
 package com.samuelsumbane.cashewtreedata.view.data
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -78,7 +79,7 @@ fun BasicRowItem(
             .padding(12.dp)
             .fillMaxWidth()
             .height(46.dp)
-            .background(Color.Green, RoundedCornerShape(8.dp)),
+            .background(Color.LightGray, RoundedCornerShape(8.dp)),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically
     ) { content() }
@@ -93,8 +94,8 @@ fun RowItem(local: String, date: String, time: String) {
 }
 
 @Composable
-fun FormerRowItem(name: String, age: Int) {
-    BasicRowItem {
+fun FormerRowItem(name: String, age: Int, modifier: Modifier = Modifier) {
+    BasicRowItem(modifier = modifier) {
         ItemText(name)
         ItemText(age.toString())
     }
