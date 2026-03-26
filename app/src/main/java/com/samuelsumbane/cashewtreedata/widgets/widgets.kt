@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
@@ -32,6 +33,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.samuelsumbane.cashewtreedata.domain.model.Research
+import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
 
 @Composable
 fun AppButton(text: String, onClick: () -> Unit) {
@@ -116,10 +119,31 @@ fun DropDownComponent(
         ) {
             Text(selectedOptionText, modifier = Modifier.padding(start = 10.dp))
             IconButton(
-                onClick = {}
+                onClick = onClick
             ) {
                 Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Open options")
             }
         }
+    }
+}
+
+@Composable
+fun CancelAndSubmitButtonRow(
+    onCancelClicked: () -> Unit,
+    onSubmitClicked: () -> Unit,
+) {
+    Row(
+        modifier = Modifier
+            .padding(top = 17.dp)
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceAround,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        OutlinedButton(
+            onClick = onCancelClicked
+        ) {
+            Text("Cancelar")
+        }
+        AppButton(text = "Submeter") { onSubmitClicked() }
     }
 }

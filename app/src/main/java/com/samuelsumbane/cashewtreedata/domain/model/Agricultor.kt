@@ -1,10 +1,15 @@
 package com.samuelsumbane.cashewtreedata.domain.model
 
 data class Agricultor(
+    val id: Int,
     val name: String,
-    val age: Int,
+    val birthDay: Long,
     val experienceYear: Int,
-    val genere: Genere
+    val genere: String
 )
 
-enum class Genere { Male, Female }
+enum class Genere(val genereName: String) {
+    Male("Masculino"),
+    Female("Femenino"),
+    Other("Outro")
+}

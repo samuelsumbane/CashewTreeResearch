@@ -51,21 +51,21 @@ object CashewTreeRepository {
     )
 
 //    fun addCashew(researchData: Research) {
-    fun addCashew() {
-        val n = Research(
-            personalData = 4,
-            location = "Novo dado",
-            fugicidaName = "Cajocida",
-            puliverizationMonth = "Julho",
-            productionYear = "2022",
-            cashewTreeAge = 2,
-            productionQuality = ProductionQuality.Low,
-            producedQuantity = 12.0,
-            pricePerKG = 100.0,
-            wasPulverized = true,
-            deases = ""
-        )
-        cashewData.add(n)
+    fun addCashew(research: Research) {
+//        val n = Research(
+//            personalData = 4,
+//            location = "Novo dado",
+//            fugicidaName = "Cajocida",
+//            puliverizationMonth = "Julho",
+//            productionYear = "2022",
+//            cashewTreeAge = 2,
+//            productionQuality = ProductionQuality.Low,
+//            producedQuantity = 12.0,
+//            pricePerKG = 100.0,
+//            wasPulverized = true,
+//            deases = ""
+//        )
+        cashewData.add(research)
     }
 
     fun fillForm(

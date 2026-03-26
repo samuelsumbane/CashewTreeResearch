@@ -35,7 +35,6 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -48,12 +47,14 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.ProductionQuality
+import com.samuelsumbane.cashewtreedata.domain.model.Research
 import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
+import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
 import com.samuelsumbane.cashewtreedata.widgets.AddDataRow
-import com.samuelsumbane.cashewtreedata.widgets.AppButton
 import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
+import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
 import com.samuelsumbane.cashewtreedata.widgets.DropDownComponent
 
 class AddDataScreen : Screen {
@@ -92,7 +93,7 @@ fun AddResearchData() {
 
     var formersColumnZindex by remember { mutableFloatStateOf(0f) }
     var formerName by remember { mutableStateOf("Selecione o agricultor") }
-    var formderId by remember { mutableIntStateOf(0) }
+    var formerId by remember { mutableIntStateOf(0) }
 
     val navigator = LocalNavigator.currentOrThrow
     val cashewTreeRepo = CashewTreeRepository
@@ -262,7 +263,6 @@ fun AddResearchData() {
                             producedQuantity = it.toDouble()
                         }
 
-
                         AppTextInput(
                             inputLabel = "Preço (kg)",
                             value = pricePerKG.toString(),
@@ -276,23 +276,22 @@ fun AddResearchData() {
                             value = deases
                         ) { deases = it }
 
-                        Row(
-                            modifier = Modifier
-                                .padding(top = 17.dp)
-                                .fillMaxWidth(),
-                            horizontalArrangement = Arrangement.SpaceAround,
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            OutlinedButton(
-                                onClick = {
-
-                                }
-                            ) {
-                                Text("Cancelar")
-                            }
-                            AppButton(text = "Submeter") {
-                                println("o formulario: personal: $personalData, loc: $location  fug: $fugicidaName pul: $wasPulverized, pulverizationMonth:$puliverizationMonth, proY: $productionYear cAge: $cashewTreeAge proQlty: $productionQuality prQtty: $producedQuantity priceKg: $pricePerKG pulv: $wasPulverized deases: $deases")
-                            }
+                        CancelAndSubmitButtonRow(onCancelClicked = {}) {
+                            CashewTreeRepository.addCashew(
+                                Research(
+                                    formerId,
+                                    location,
+                                    fugicidaName,
+                                    puliverizationMonth,
+                                    productionYear,
+                                    cashewTreeAge,
+                                    productionQuality,
+                                    producedQuantity,
+                                    pricePerKG,
+                                    wasPulverized,
+                                    deases
+                                )
+                            )
                         }
                     }
                 }
@@ -327,11 +326,11 @@ fun AddResearchData() {
                     items(searchedFormers) {
                         FormerRowItem(
                             name = it.name,
-                            age = it.age,
+                            age = convertLongToDateString(it.birthDay),
                             modifier = Modifier
                                 .clickable {
                                     formerName = it.name
-//                                    formderId = it
+                                    formerId = it.id
                                     formersColumnZindex = 0f
                                 }
                         )
