@@ -1,6 +1,8 @@
 package com.samuelsumbane.cashewtreedata.widgets
 
+import android.content.Context
 import android.graphics.drawable.Icon
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -146,4 +148,23 @@ fun CancelAndSubmitButtonRow(
         }
         AppButton(text = "Submeter") { onSubmitClicked() }
     }
+}
+
+@Composable
+fun TextItem(key: String, value: String) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth(),
+        horizontalArrangement = Arrangement.SpaceBetween
+    ) {
+        Text(key)
+        Text(value)
+    }
+}
+
+fun showToast(
+    context: Context,
+    text: String
+) {
+    Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
 }

@@ -17,7 +17,8 @@ class MainActivity : ComponentActivity() {
             CashewTreeDataTheme {
 //                Navigator(ViewCashDataScreen())
 //                Navigator(AddDataScreen())
-                Navigator(AddFormerScreen())
+//                Navigator(AddFormerScreen())
+                Navigator(HomeScreen())
             }
         }
     }

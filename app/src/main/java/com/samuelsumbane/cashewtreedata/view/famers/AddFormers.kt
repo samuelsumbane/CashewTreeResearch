@@ -31,6 +31,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -46,6 +47,7 @@ import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
 import com.samuelsumbane.cashewtreedata.widgets.DropDownComponent
+import com.samuelsumbane.cashewtreedata.widgets.showToast
 import kotlinx.coroutines.launch
 
 
@@ -74,6 +76,7 @@ fun AddFormerPage() {
     var showDatePickerDropDown by remember { mutableStateOf(false) }
     var showGenereDropDown by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    val context = LocalContext.current
 
     Scaffold(
         topBar = {
@@ -105,7 +108,7 @@ fun AddFormerPage() {
                         .fillMaxWidth(),
                     horizontalArrangement = Arrangement.Center
                 ) {
-                    Text("Adicionar dados", fontWeight = FontWeight.Bold, fontSize = 25.sp)
+                    Text("Cadastrar agricultor", fontWeight = FontWeight.Bold, fontSize = 25.sp)
                 }
 
                 AppTextInput(
@@ -139,7 +142,6 @@ fun AddFormerPage() {
                     }
                 }
 
-
                 AppTextInput(
                     inputLabel = "Exp. Do Agri. (anos)",
                     value = formerExperience.toString(),
@@ -170,7 +172,9 @@ fun AddFormerPage() {
                     }
                 }
 
-                CancelAndSubmitButtonRow(onCancelClicked = {}) {
+                CancelAndSubmitButtonRow(
+                    onCancelClicked = { navigator.pop() }
+                ) {
                     coroutineScope.launch {
                         formRepo.addFormer(
                             Agricultor(
@@ -181,6 +185,11 @@ fun AddFormerPage() {
                                 genere = formGenere.genereName
                             )
                         )
+                        formerName = ""
+                        formerBirthDate = 0L
+                        formerExperience = 0
+
+                        showToast(context, "Novo agricultor adicionado com sucesso")
                     }
                 }
 

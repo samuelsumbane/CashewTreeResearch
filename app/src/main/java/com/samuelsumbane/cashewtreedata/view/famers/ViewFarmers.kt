@@ -1,6 +1,7 @@
 package com.samuelsumbane.cashewtreedata.view.famers
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -27,10 +28,8 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
-import com.samuelsumbane.cashewtreedata.view.data.AddDataScreen
 import com.samuelsumbane.cashewtreedata.view.data.BasicRowItem
 import com.samuelsumbane.cashewtreedata.view.data.ItemText
-import com.samuelsumbane.cashewtreedata.view.data.RowItem
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 
 class ViewFormersScreen : Screen {
@@ -57,11 +56,11 @@ fun ViewFarmersPage() {
         },
         floatingActionButton = {
             FloatingActionButton(
-                onClick = { navigator.push(AddDataScreen()) }
+                onClick = { navigator.push(AddFormerScreen()) }
             ) {
                 Icon(Icons.Filled.Add, "Add research data")
             }
-        }
+        },
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -81,7 +80,12 @@ fun ViewFarmersPage() {
 
             LazyColumn {
                 items(formersRepo.formers) {
-                    BasicRowItem {
+                    BasicRowItem(
+                        modifier = Modifier
+                            .clickable {
+                                navigator.push(EachFormerScreen(it))
+                            }
+                    ) {
                         ItemText(it.name)
                     }
                 }
