@@ -17,11 +17,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.Agricultor
+import com.samuelsumbane.cashewtreedata.domain.model.Former
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.TextItem
 
 
-data class EachFormerScreen(val former: Agricultor)  : Screen {
+data class EachFormerScreen(val former: Former)  : Screen {
     @Composable
     override fun Content() {
         EachFormerPage(former)
@@ -32,7 +33,7 @@ data class EachFormerScreen(val former: Agricultor)  : Screen {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EachFormerPage(former: Agricultor) {
+fun EachFormerPage(former: Former) {
     val navigator = LocalNavigator.currentOrThrow
 
     Scaffold(

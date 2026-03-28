@@ -16,10 +16,12 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
@@ -37,6 +39,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
@@ -48,14 +51,20 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.ProductionQuality
 import com.samuelsumbane.cashewtreedata.domain.model.Research
+import com.samuelsumbane.cashewtreedata.presentation.ResearchViewModel
 import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
 import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
+import com.samuelsumbane.cashewtreedata.view.famers.AddFormerScreen
 import com.samuelsumbane.cashewtreedata.widgets.AddDataRow
+import com.samuelsumbane.cashewtreedata.widgets.AppButton
 import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
 import com.samuelsumbane.cashewtreedata.widgets.DropDownComponent
+import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
+import com.samuelsumbane.cashewtreedata.widgets.showToast
+import org.koin.java.KoinJavaComponent.getKoin
 
 class AddDataScreen : Screen {
     @RequiresApi(Build.VERSION_CODES.O)
@@ -72,6 +81,11 @@ class AddDataScreen : Screen {
 fun AddResearchData() {
 
     val months = listOf("Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")
+
+    val cashewViewModel by remember { mutableStateOf(getKoin().get<ResearchViewModel>())}
+
+
+    val context = LocalContext.current
 
     var personalData by remember { mutableIntStateOf(0) }
     var location by remember { mutableStateOf("") }
@@ -118,6 +132,16 @@ fun AddResearchData() {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
+        },
+        floatingActionButton = {
+            if (formersColumnZindex > 1f) {
+                FloatingActionButton(
+                    onClick = { navigator.push(AddFormerScreen()) }
+                ) {
+                    Icon(Icons.Filled.Add, "Add research data")
+                }
+            }
+
         },
         containerColor = Color.DarkGray
     ) { innerPadding ->
@@ -276,22 +300,41 @@ fun AddResearchData() {
                             value = deases
                         ) { deases = it }
 
-                        CancelAndSubmitButtonRow(onCancelClicked = {}) {
-                            CashewTreeRepository.addCashew(
-                                Research(
-                                    formerId,
-                                    location,
-                                    fugicidaName,
-                                    puliverizationMonth,
-                                    productionYear,
-                                    cashewTreeAge,
-                                    productionQuality,
-                                    producedQuantity,
-                                    pricePerKG,
-                                    wasPulverized,
-                                    deases
-                                )
+                        CancelAndSubmitButtonRow(
+                            onCancelClicked = { navigator.pop() }
+                        ) {
+                            cashewViewModel.addResearch(
+                                formerId,
+                                location,
+                                fugicidaName,
+                                puliverizationMonth,
+                                productionYear,
+                                cashewTreeAge,
+                                productionQuality.stringValue,
+                                producedQuantity,
+                                pricePerKG,
+                                wasPulverized,
+                                deases
                             )
+
+                            showToast(context, "Cadastro feito com sucesso.")
+
+
+//                            CashewTreeRepository.addCashew(
+//                                Research(
+//                                    formerId,
+//                                    location,
+//                                    fugicidaName,
+//                                    puliverizationMonth,
+//                                    productionYear,
+//                                    cashewTreeAge,
+//                                    productionQuality,
+//                                    producedQuantity,
+//                                    pricePerKG,
+//                                    wasPulverized,
+//                                    deases
+//                                )
+//                            )
                         }
                     }
                 }
@@ -302,25 +345,10 @@ fun AddResearchData() {
                     .padding()
                     .fillMaxSize()
                     .zIndex(formersColumnZindex)
-                    .background(Color.Black.copy(alpha = 0.9f))
+                    .background(Color.DarkGray)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-//                        .background(Color.Red)
-                    ,
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    TextField(
-                        value = searchedValue,
-                        onValueChange = { searchedValue = it },
-                        prefix = {
-                            Icon(Icons.Filled.Search, contentDescription = "Search formers")
-                        },
-                        modifier = Modifier.fillMaxWidth(0.8f),
-                        shape = RoundedCornerShape(12.dp)
-                    )
-                }
+
+                SearchComponent(searchedValue) { searchedValue = it }
 
                 CustomLazyColumn(spacedBy = 12.dp) {
                     items(searchedFormers) {

@@ -2,6 +2,8 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -64,4 +66,18 @@ dependencies {
 
     // Kotlinx Serialization
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.3")
+
+
+    implementation("androidx.room:room-runtime:2.6.1")
+//    kapt("androidx.room:room-compiler:2.6.1")
+
+    implementation("androidx.room:room-ktx:2.6.1")
+
+    ksp("androidx.room:room-compiler:2.6.1")
+
+    // Compose + Flow integração
+    implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.7.0")
+
+    implementation("io.insert-koin:koin-android:3.5.6")
+
 }

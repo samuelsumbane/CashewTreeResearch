@@ -17,6 +17,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
@@ -26,6 +27,7 @@ import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,10 +41,14 @@ import com.samuelsumbane.cashewtreedata.domain.model.Research
 import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
 
 @Composable
-fun AppButton(text: String, onClick: () -> Unit) {
+fun AppButton(
+    text: String,
+    modifier: Modifier = Modifier,
+    onClick: () -> Unit
+) {
     Button(
         onClick = { onClick() },
-        modifier = Modifier
+        modifier = modifier
             .padding(20.dp)
 //            .fillMaxWidth()
             .height(45.dp),
@@ -167,4 +173,29 @@ fun showToast(
     text: String
 ) {
     Toast.makeText(context, text, Toast.LENGTH_SHORT).show()
+}
+
+
+@Composable
+fun SearchComponent(
+    value: String,
+    onValueChange: (String) -> Unit
+) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+//                        .background(Color.Red)
+        ,
+        horizontalArrangement = Arrangement.Center
+    ) {
+        TextField(
+            value = value,
+            onValueChange = onValueChange,
+            prefix = {
+                Icon(Icons.Filled.Search, contentDescription = "Search formers")
+            },
+            modifier = Modifier.fillMaxWidth(0.8f),
+            shape = RoundedCornerShape(12.dp)
+        )
+    }
 }

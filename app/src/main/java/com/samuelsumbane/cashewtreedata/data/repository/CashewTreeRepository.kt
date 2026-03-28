@@ -2,53 +2,52 @@ package com.samuelsumbane.cashewtreedata.repository
 
 import com.samuelsumbane.cashewtreedata.domain.model.ProductionQuality
 import com.samuelsumbane.cashewtreedata.domain.model.Research
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
 
 object CashewTreeRepository {
 
     val cashewData = mutableListOf(
         Research(
-            personalData = 1,
+            formerId = 1,
             location = "Chongoene",
             fugicidaName = "Fugicida",
             puliverizationMonth = "Junho",
             productionYear = "2020",
             cashewTreeAge = 2,
-            productionQuality = ProductionQuality.Low,
+            productionQuality = ProductionQuality.Low.stringValue,
             producedQuantity = 12.0,
             pricePerKG = 100.0,
             wasPulverized = true,
             deases = "no"
         ),
         Research(
-            personalData = 2,
+            formerId = 2,
             location = "Manjacaze",
             fugicidaName = "",
             puliverizationMonth = "Julho",
             productionYear = "2021",
             cashewTreeAge = 3,
-            productionQuality = ProductionQuality.Medium,
+            productionQuality = ProductionQuality.Medium.stringValue,
             producedQuantity = 12.0,
             pricePerKG = 100.0,
             wasPulverized = true,
             deases = ""
         ),
         Research(
-            personalData = 3,
+            formerId = 3,
             location = "Chongoene",
             fugicidaName = "Cajocida",
             puliverizationMonth = "Julho",
             productionYear = "2022",
             cashewTreeAge = 2,
-            productionQuality = ProductionQuality.Low,
+            productionQuality = ProductionQuality.Low.stringValue,
             producedQuantity = 12.0,
             pricePerKG = 100.0,
             wasPulverized = true,
             deases = ""
         ),
     )
+
+//    val cashewDataList = cashewData.
 
 //    fun addCashew(researchData: Research) {
     fun addCashew(research: Research) {

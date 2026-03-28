@@ -18,7 +18,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -27,10 +32,12 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
 import com.samuelsumbane.cashewtreedata.view.data.BasicRowItem
 import com.samuelsumbane.cashewtreedata.view.data.ItemText
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
+import org.koin.java.KoinJavaComponent.getKoin
 
 class ViewFormersScreen : Screen {
     @Composable
@@ -43,7 +50,9 @@ class ViewFormersScreen : Screen {
 @Composable
 fun ViewFarmersPage() {
     val navigator = LocalNavigator.currentOrThrow
-    val formersRepo = FormersRepo
+//    val formersRepo = FormersRepo
+    val formerViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
+    val formersData by formerViewModel.formersList.collectAsState()
 
     Scaffold(
         topBar = {
@@ -52,8 +61,10 @@ fun ViewFarmersPage() {
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
+        containerColor = Color.DarkGray,
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navigator.push(AddFormerScreen()) }
@@ -79,7 +90,7 @@ fun ViewFarmersPage() {
             }
 
             LazyColumn {
-                items(formersRepo.formers) {
+                items(formersData) {
                     BasicRowItem(
                         modifier = Modifier
                             .clickable {

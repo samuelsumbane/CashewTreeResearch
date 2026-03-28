@@ -41,6 +41,7 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.Agricultor
+import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
 import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
 import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
@@ -49,6 +50,7 @@ import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
 import com.samuelsumbane.cashewtreedata.widgets.DropDownComponent
 import com.samuelsumbane.cashewtreedata.widgets.showToast
 import kotlinx.coroutines.launch
+import org.koin.java.KoinJavaComponent.getKoin
 
 
 class AddFormerScreen : Screen {
@@ -67,6 +69,8 @@ fun AddFormerPage() {
     val navigator = LocalNavigator.currentOrThrow
 
     val formRepo = FormersRepo
+    val formersViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
+
 
     var formGenere by remember { mutableStateOf(Genere.Other)}
 
@@ -176,15 +180,8 @@ fun AddFormerPage() {
                     onCancelClicked = { navigator.pop() }
                 ) {
                     coroutineScope.launch {
-                        formRepo.addFormer(
-                            Agricultor(
-                                id = 0,
-                                name = formerName,
-                                birthDay = formerBirthDate,
-                                experienceYear = formerExperience,
-                                genere = formGenere.genereName
-                            )
-                        )
+                        formersViewModel.addFormer(formerName, formerBirthDate, formerExperience, formGenere.genereName)
+
                         formerName = ""
                         formerBirthDate = 0L
                         formerExperience = 0
