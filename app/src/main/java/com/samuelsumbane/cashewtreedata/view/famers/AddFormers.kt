@@ -85,14 +85,30 @@ fun AddFormerPage() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("") },
+                title = { Text("Adicionar agricultor") },
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
-        containerColor = Color.DarkGray
+        containerColor = Color.DarkGray,
+        bottomBar = {
+            CancelAndSubmitButtonRow(
+                onCancelClicked = { navigator.pop() }
+            ) {
+                coroutineScope.launch {
+                    formersViewModel.addFormer(formerName, formerBirthDate, formerExperience, formGenere.genereName)
+
+                    formerName = ""
+                    formerBirthDate = 0L
+                    formerExperience = 0
+
+                    showToast(context, "Novo agricultor adicionado com sucesso")
+                }
+            }
+
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -106,14 +122,6 @@ fun AddFormerPage() {
                     .fillMaxSize()
                     .background(Color.DarkGray),
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(top = 30.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text("Cadastrar agricultor", fontWeight = FontWeight.Bold, fontSize = 25.sp)
-                }
 
                 AppTextInput(
                     inputLabel = "Nome do agricultor",
@@ -176,20 +184,6 @@ fun AddFormerPage() {
                     }
                 }
 
-                CancelAndSubmitButtonRow(
-                    onCancelClicked = { navigator.pop() }
-                ) {
-                    coroutineScope.launch {
-                        formersViewModel.addFormer(formerName, formerBirthDate, formerExperience, formGenere.genereName)
-
-                        formerName = ""
-                        formerBirthDate = 0L
-                        formerExperience = 0
-
-                        showToast(context, "Novo agricultor adicionado com sucesso")
-                    }
-                }
-
             }
         }
     }
@@ -198,6 +192,6 @@ fun AddFormerPage() {
 
 enum class Genere(val genereName: String) {
     Male("Masculino"),
-    Female("Female"),
+    Female("Femenino"),
     Other("Outro")
 }

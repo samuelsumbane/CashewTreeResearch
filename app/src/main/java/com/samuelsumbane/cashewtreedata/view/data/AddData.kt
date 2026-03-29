@@ -2,14 +2,17 @@ package com.samuelsumbane.cashewtreedata.view.data
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -30,6 +33,7 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableFloatStateOf
@@ -51,6 +55,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.ProductionQuality
 import com.samuelsumbane.cashewtreedata.domain.model.Research
+import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
 import com.samuelsumbane.cashewtreedata.presentation.ResearchViewModel
 import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
@@ -62,6 +67,7 @@ import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
 import com.samuelsumbane.cashewtreedata.widgets.DropDownComponent
+import com.samuelsumbane.cashewtreedata.widgets.NoDataFound
 import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
 import com.samuelsumbane.cashewtreedata.widgets.showToast
 import org.koin.java.KoinJavaComponent.getKoin
@@ -96,7 +102,7 @@ fun AddResearchData() {
     var productionQuality by remember { mutableStateOf(ProductionQuality.Low) }
     var producedQuantity by remember { mutableDoubleStateOf(0.0) }
     var pricePerKG by remember { mutableDoubleStateOf(0.0) }
-    var wasPulverized by remember { mutableStateOf(true) }
+    var wasPulverized by remember { mutableStateOf(false) }
     var deases by remember { mutableStateOf("") }
 
     var searchedValue by remember { mutableStateOf("") }
@@ -112,7 +118,10 @@ fun AddResearchData() {
     val navigator = LocalNavigator.currentOrThrow
     val cashewTreeRepo = CashewTreeRepository
     val formersRepo = FormersRepo
-    val formersList = formersRepo.formers
+//    val formersList = formersRepo.formers
+    val formersViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
+    val formersList by formersViewModel.formersList.collectAsState()
+
 
     val searchedFormers = remember(formersList, searchedValue) {
         if (searchedValue.isBlank()) {
@@ -126,7 +135,7 @@ fun AddResearchData() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("") },
+                title = { Text(text = if (formersColumnZindex > 1f) "Selecione um agricultor" else "") },
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
@@ -196,30 +205,33 @@ fun AddResearchData() {
                             value = fugicidaName
                         ) { fugicidaName = it }
 
-                        DropDownComponent(
-                            title = "Select mes",
-                            selectedOptionText = puliverizationMonth
-                        ) {
-                            showMonthsDropDown = !showMonthsDropDown
-                        }
+                        AddDataRow()
 
-                        if (showMonthsDropDown) {
-                            DropdownMenu(
-                                expanded = true,
-                                onDismissRequest = { showMonthsDropDown = false }
+                        AnimatedVisibility (wasPulverized) {
+                            DropDownComponent(
+                                title = "Selecione o mês de pulverização",
+                                selectedOptionText = puliverizationMonth
                             ) {
-                                months.forEach { month ->
-                                    DropdownMenuItem(
-                                        text = { Text(month) },
-                                        onClick = {
-                                            puliverizationMonth = month
-                                            showMonthsDropDown = false
-                                        }
-                                    )
+                                showMonthsDropDown = !showMonthsDropDown
+                            }
+
+                            if (showMonthsDropDown) {
+                                DropdownMenu(
+                                    expanded = true,
+                                    onDismissRequest = { showMonthsDropDown = false }
+                                ) {
+                                    months.forEach { month ->
+                                        DropdownMenuItem(
+                                            text = { Text(month) },
+                                            onClick = {
+                                                puliverizationMonth = month
+                                                showMonthsDropDown = false
+                                            }
+                                        )
+                                    }
                                 }
                             }
                         }
-
 
                         DropDownComponent(
                             title = "Selecionar o ano",
@@ -293,12 +305,12 @@ fun AddResearchData() {
                             keyboardType = KeyboardType.Decimal
                         ) { pricePerKG = it.toDouble() }
 
-                        AddDataRow()
-
                         AppTextInput(
                             inputLabel = "Doenças",
                             value = deases
                         ) { deases = it }
+
+                        Spacer(Modifier.height(40.dp))
 
                         CancelAndSubmitButtonRow(
                             onCancelClicked = { navigator.pop() }
@@ -320,21 +332,18 @@ fun AddResearchData() {
                             showToast(context, "Cadastro feito com sucesso.")
 
 
-//                            CashewTreeRepository.addCashew(
-//                                Research(
-//                                    formerId,
-//                                    location,
-//                                    fugicidaName,
-//                                    puliverizationMonth,
-//                                    productionYear,
-//                                    cashewTreeAge,
-//                                    productionQuality,
-//                                    producedQuantity,
-//                                    pricePerKG,
-//                                    wasPulverized,
-//                                    deases
-//                                )
-//                            )
+                            formerId = 0
+                            location = ""
+                            fugicidaName = ""
+                            puliverizationMonth = ""
+                            productionYear = ""
+                            cashewTreeAge = 0
+                            productionQuality = ProductionQuality.Low
+                            producedQuantity = 0.0
+                            pricePerKG = 0.0
+                            wasPulverized = false
+                            deases = ""
+
                         }
                     }
                 }
@@ -350,18 +359,22 @@ fun AddResearchData() {
 
                 SearchComponent(searchedValue) { searchedValue = it }
 
-                CustomLazyColumn(spacedBy = 12.dp) {
-                    items(searchedFormers) {
-                        FormerRowItem(
-                            name = it.name,
-                            age = convertLongToDateString(it.birthDay),
-                            modifier = Modifier
-                                .clickable {
-                                    formerName = it.name
-                                    formerId = it.id
-                                    formersColumnZindex = 0f
-                                }
-                        )
+                if (formersList.isEmpty()) {
+                    NoDataFound()
+                } else {
+                    CustomLazyColumn(spacedBy = 12.dp) {
+                        items(searchedFormers) {
+                            FormerRowItem(
+                                name = it.name,
+                                age = convertLongToDateString(it.birthDay),
+                                modifier = Modifier
+                                    .clickable {
+                                        formerName = it.name
+                                        formerId = it.id
+                                        formersColumnZindex = 0f
+                                    }
+                            )
+                        }
                     }
                 }
 

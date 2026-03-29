@@ -1,5 +1,7 @@
 package com.samuelsumbane.cashewtreedata.view.famers
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -16,13 +19,14 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.samuelsumbane.cashewtreedata.domain.model.Agricultor
 import com.samuelsumbane.cashewtreedata.domain.model.Former
+import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.TextItem
 
 
 data class EachFormerScreen(val former: Former)  : Screen {
+    @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     override fun Content() {
         EachFormerPage(former)
@@ -30,16 +34,22 @@ data class EachFormerScreen(val former: Former)  : Screen {
 }
 
 
-
+@RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EachFormerPage(former: Former) {
     val navigator = LocalNavigator.currentOrThrow
+    val currentTimeMillis = System.currentTimeMillis()
+    val age = if (former.birthDay > currentTimeMillis) {
+        0
+    } else {
+        currentTimeMillis - former.birthDay
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {},
+                title = { Text("Dados do agricultor") },
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
@@ -62,7 +72,8 @@ fun EachFormerPage(former: Former) {
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 TextItem("Nome", former.name)
-                TextItem("Idade", former.birthDay.toString())
+                TextItem("Data de nascimento", convertLongToDateString(former.birthDay))
+                TextItem("Idade", age.toString())
 //                TextItem()
             }
         }

@@ -1,6 +1,12 @@
 package com.samuelsumbane.cashewtreedata.view.data
 
 import android.R.attr.data
+import android.content.ContentValues
+import android.content.Context
+import android.os.Build
+import android.os.Environment
+import android.provider.MediaStore
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -29,52 +35,60 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.samuelsumbane.cashewtreedata.domain.model.Research
 import com.samuelsumbane.cashewtreedata.presentation.ResearchViewModel
 import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
+import com.samuelsumbane.cashewtreedata.widgets.NoDataFound
 import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
+import com.samuelsumbane.cashewtreedata.widgets.showToast
 import org.koin.java.KoinJavaComponent.getKoin
 import java.io.File
-
+import java.io.OutputStreamWriter
+import com.samuelsumbane.cashewtreedata.R
 
 class ViewCashDataScreen : Screen {
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     override fun Content() {
         ViewCashewData()
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewCashewData() {
 
-    val cashewTreeRepository = CashewTreeRepository
-    val searchedDataValue by remember { mutableStateOf("") }
+    var searchedDataValue by remember { mutableStateOf("") }
 
     val cashewTreeViewModel by remember { mutableStateOf(getKoin().get<ResearchViewModel>()) }
 
     val researchData by cashewTreeViewModel.researchs.collectAsState()
 
-    println("os researchs sao: $researchData")
 
     val navigator = LocalNavigator.currentOrThrow
     val context = LocalContext.current
 
-    val searchedData = remember (cashewTreeRepository.cashewData, searchedDataValue) {
+    val searchedData = remember (researchData, searchedDataValue) {
         if (searchedDataValue.isBlank()) {
-            cashewTreeRepository.cashewData
+            researchData
         } else {
-            cashewTreeRepository.cashewData
+            researchData.filter { it.formerId == 0 }
         }
     }
 
@@ -82,7 +96,7 @@ fun ViewCashewData() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {},
+                title = { Text("Visualizar dados") },
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
@@ -90,19 +104,11 @@ fun ViewCashewData() {
                 actions = {
                     IconButton(
                         onClick = {
-//                            fun exportToCSV(context: Context, data: List<YourModel>) {
-                                val file = File(context.getExternalFilesDir(null), "dados.csv")
-
-                                file.bufferedWriter().use { writer ->
-                                    writer.write("Nome,Idade\n")
-                                    searchedData.forEach {
-                                        writer.write("${it.location},${it.producedQuantity}\n")
-                                    }
-                                }
-//                            }
+                            exportToCSVWithMediaStore(context, searchedData)
+                            showToast(context, "O arquivo foi salvo com sucesso na pasta de downloads.")
                         }
                     ) {
-                        Icon(Icons.Default.PlayArrow, contentDescription = "export data")
+                        Icon(painterResource(R.drawable.foldersymlinkfill), contentDescription = "export data")
                     }
                 }
             )
@@ -123,23 +129,19 @@ fun ViewCashewData() {
                 .background(Color.DarkGray)
         ) {
 
-            SearchComponent(
-                value = ""
-            ) { }
+            if (researchData.isEmpty()) {
+                NoDataFound()
+            } else {
+                SearchComponent(
+                    value = searchedDataValue
+                ) { searchedDataValue = it }
 
-
-            Row(
-                modifier = Modifier
-                    .padding(top = 30.dp, bottom = 30.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text("Visualizar dados", fontWeight = FontWeight.Bold, fontSize = 25.sp)
-            }
-
-            LazyColumn {
-                items(researchData) {
-                    RowItem(it.location, it.productionYear, "12:00")
+                LazyColumn(
+                    modifier = Modifier.padding(top = 45.dp)
+                ) {
+                    items(searchedData) {
+                        RowItem(it.location, it.productionYear, "12:00")
+                    }
                 }
             }
         }
@@ -181,4 +183,31 @@ fun FormerRowItem(name: String, age: String, modifier: Modifier = Modifier) {
 @Composable
 fun ItemText(text: String) {
     Text(text, color = Color.Black, modifier = Modifier.padding(10.dp))
+}
+
+@RequiresApi(Build.VERSION_CODES.Q)
+fun exportToCSVWithMediaStore(context: Context, data: List<Research>) {
+    val resolver = context.contentResolver
+
+    val contentValues = ContentValues().apply {
+        put(MediaStore.MediaColumns.DISPLAY_NAME, "dados.csv")
+        put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
+        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
+    }
+
+    val uri = resolver.insert(
+        MediaStore.Downloads.EXTERNAL_CONTENT_URI,
+        contentValues
+    )
+
+    uri?.let {
+        resolver.openOutputStream(it)?.use { outputStream ->
+            OutputStreamWriter(outputStream).use { writer ->
+                writer.write("Nome,Idade\n")
+                data.forEach {
+                    writer.write("${it.formerId},${it.location}\n")
+                }
+            }
+        }
+    }
 }

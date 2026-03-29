@@ -24,6 +24,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
@@ -37,6 +38,8 @@ import com.samuelsumbane.cashewtreedata.repository.FormersRepo
 import com.samuelsumbane.cashewtreedata.view.data.BasicRowItem
 import com.samuelsumbane.cashewtreedata.view.data.ItemText
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
+import com.samuelsumbane.cashewtreedata.widgets.NoDataFound
+import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
 import org.koin.java.KoinJavaComponent.getKoin
 
 class ViewFormersScreen : Screen {
@@ -50,14 +53,23 @@ class ViewFormersScreen : Screen {
 @Composable
 fun ViewFarmersPage() {
     val navigator = LocalNavigator.currentOrThrow
-//    val formersRepo = FormersRepo
     val formerViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
     val formersData by formerViewModel.formersList.collectAsState()
+
+    var searchValue by remember { mutableStateOf("") }
+
+    val searchedFormers = remember(formersData, searchValue) {
+        if (searchValue.isBlank()) {
+            formersData
+        } else {
+            formersData.filter { it.name.contains(searchValue, ignoreCase = true) }
+        }
+    }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = {},
+                title = { Text("Agricultores") },
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
@@ -80,24 +92,25 @@ fun ViewFarmersPage() {
                 .background(Color.DarkGray)
         ) {
 
-            Row(
-                modifier = Modifier
-                    .padding(top = 30.dp, bottom = 30.dp)
-                    .fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text("Agricultores", fontWeight = FontWeight.Bold, fontSize = 25.sp)
-            }
+            if (formersData.isEmpty()) {
+                NoDataFound()
+            } else {
 
-            LazyColumn {
-                items(formersData) {
-                    BasicRowItem(
-                        modifier = Modifier
-                            .clickable {
-                                navigator.push(EachFormerScreen(it))
-                            }
-                    ) {
-                        ItemText(it.name)
+                SearchComponent(searchValue) { searchValue = it }
+
+                LazyColumn(
+                    modifier = Modifier
+                        .padding(top = 30.dp)
+                ) {
+                    items(searchedFormers) {
+                        BasicRowItem(
+                            modifier = Modifier
+                                .clickable {
+                                    navigator.push(EachFormerScreen(it))
+                                }
+                        ) {
+                            ItemText(it.name)
+                        }
                     }
                 }
             }

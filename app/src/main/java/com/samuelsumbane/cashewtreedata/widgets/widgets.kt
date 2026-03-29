@@ -8,6 +8,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -75,7 +76,7 @@ fun AddDataRow() {
     val options = listOf("Sim", "Não")
     var selectedOption by remember { mutableStateOf(options[0]) }
 
-    Column(modifier = Modifier.padding(start = 10.dp)) {
+    Column(modifier = Modifier.padding(start = 20.dp)) {
 
         Text("Pulverizado")
 
@@ -197,5 +198,23 @@ fun SearchComponent(
             modifier = Modifier.fillMaxWidth(0.8f),
             shape = RoundedCornerShape(12.dp)
         )
+    }
+}
+
+@Composable
+fun NoDataFound() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+//            .background(Color.Red)
+        ,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text("Nenhum registro encontrado")
+        }
     }
 }
