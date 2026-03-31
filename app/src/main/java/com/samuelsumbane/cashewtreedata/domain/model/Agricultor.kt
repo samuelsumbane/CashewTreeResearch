@@ -8,6 +8,13 @@ data class Agricultor(
     val genere: String
 )
 
+data class FinalFormer(
+    val name: String,
+    val age: Int,
+    val experienceYear: Int,
+    val genere: String
+)
+
 enum class Genere(val genereName: String) {
     Male("Masculino"),
     Female("Femenino"),

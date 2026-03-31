@@ -1,14 +1,8 @@
 package com.samuelsumbane.cashewtreedata.view.data
 
-import android.R.attr.data
-import android.content.ContentValues
-import android.content.Context
 import android.os.Build
-import android.os.Environment
-import android.provider.MediaStore
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -21,11 +15,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
-import androidx.compose.material.icons.filled.PlayArrow
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -39,27 +31,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.vectorResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.samuelsumbane.cashewtreedata.domain.model.Research
+import com.samuelsumbane.cashewtreedata.domain.model.Utils.exportToCSVWithMediaStore
+import com.samuelsumbane.cashewtreedata.presentation.Labels
 import com.samuelsumbane.cashewtreedata.presentation.ResearchViewModel
-import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
+import com.samuelsumbane.cashewtreedata.widgets.ExportDataButton
 import com.samuelsumbane.cashewtreedata.widgets.NoDataFound
 import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
 import com.samuelsumbane.cashewtreedata.widgets.showToast
 import org.koin.java.KoinJavaComponent.getKoin
-import java.io.File
-import java.io.OutputStreamWriter
-import com.samuelsumbane.cashewtreedata.R
 
 class ViewCashDataScreen : Screen {
     @RequiresApi(Build.VERSION_CODES.Q)
@@ -79,7 +64,6 @@ fun ViewCashewData() {
     val cashewTreeViewModel by remember { mutableStateOf(getKoin().get<ResearchViewModel>()) }
 
     val researchData by cashewTreeViewModel.researchs.collectAsState()
-
 
     val navigator = LocalNavigator.currentOrThrow
     val context = LocalContext.current
@@ -102,13 +86,12 @@ fun ViewCashewData() {
                 },
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 actions = {
-                    IconButton(
-                        onClick = {
-                            exportToCSVWithMediaStore(context, searchedData)
-                            showToast(context, "O arquivo foi salvo com sucesso na pasta de downloads.")
-                        }
-                    ) {
-                        Icon(painterResource(R.drawable.foldersymlinkfill), contentDescription = "export data")
+                    ExportDataButton {
+                        exportToCSVWithMediaStore(
+                            context,
+                            searchedData,
+                            str = "", outputFileName = "Cajus_dados.csv")
+                        showToast(context, Labels.DataExportDone.text)
                     }
                 }
             )
@@ -185,29 +168,3 @@ fun ItemText(text: String) {
     Text(text, color = Color.Black, modifier = Modifier.padding(10.dp))
 }
 
-@RequiresApi(Build.VERSION_CODES.Q)
-fun exportToCSVWithMediaStore(context: Context, data: List<Research>) {
-    val resolver = context.contentResolver
-
-    val contentValues = ContentValues().apply {
-        put(MediaStore.MediaColumns.DISPLAY_NAME, "dados.csv")
-        put(MediaStore.MediaColumns.MIME_TYPE, "text/csv")
-        put(MediaStore.MediaColumns.RELATIVE_PATH, Environment.DIRECTORY_DOWNLOADS)
-    }
-
-    val uri = resolver.insert(
-        MediaStore.Downloads.EXTERNAL_CONTENT_URI,
-        contentValues
-    )
-
-    uri?.let {
-        resolver.openOutputStream(it)?.use { outputStream ->
-            OutputStreamWriter(outputStream).use { writer ->
-                writer.write("Nome,Idade\n")
-                data.forEach {
-                    writer.write("${it.formerId},${it.location}\n")
-                }
-            }
-        }
-    }
-}

@@ -1,7 +1,6 @@
 package com.samuelsumbane.cashewtreedata.widgets
 
 import android.content.Context
-import android.graphics.drawable.Icon
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,16 +11,13 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.CutCornerShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.KeyboardArrowDown
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -38,9 +34,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
-import com.samuelsumbane.cashewtreedata.domain.model.Research
-import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
+import com.samuelsumbane.cashewtreedata.R
 
 @Composable
 fun AppButton(
@@ -102,6 +98,13 @@ fun BackButton(onClick: () -> Unit) {
     IconButton(onClick = onClick) {
         Icon(Icons.AutoMirrored.Default.ArrowBack,
             "Back")
+    }
+}
+
+@Composable
+fun ExportDataButton(onClick: () -> Unit) {
+    IconButton(onClick = onClick) {
+        Icon(painterResource(R.drawable.foldersymlinkfill), contentDescription = "export data")
     }
 }
 

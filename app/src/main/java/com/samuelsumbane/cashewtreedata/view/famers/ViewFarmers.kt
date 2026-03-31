@@ -1,5 +1,7 @@
 package com.samuelsumbane.cashewtreedata.view.famers
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -27,34 +29,43 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.samuelsumbane.cashewtreedata.domain.model.FinalFormer
+import com.samuelsumbane.cashewtreedata.domain.model.Utils.exportToCSVWithMediaStore
 import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
+import com.samuelsumbane.cashewtreedata.presentation.Labels
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
 import com.samuelsumbane.cashewtreedata.view.data.BasicRowItem
 import com.samuelsumbane.cashewtreedata.view.data.ItemText
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
+import com.samuelsumbane.cashewtreedata.widgets.ExportDataButton
 import com.samuelsumbane.cashewtreedata.widgets.NoDataFound
 import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
+import com.samuelsumbane.cashewtreedata.widgets.showToast
 import org.koin.java.KoinJavaComponent.getKoin
 
 class ViewFormersScreen : Screen {
+    @RequiresApi(Build.VERSION_CODES.Q)
     @Composable
     override fun Content() {
         ViewFarmersPage()
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.Q)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ViewFarmersPage() {
     val navigator = LocalNavigator.currentOrThrow
     val formerViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
     val formersData by formerViewModel.formersList.collectAsState()
+    val context = LocalContext.current
 
     var searchValue by remember { mutableStateOf("") }
 
@@ -73,7 +84,18 @@ fun ViewFarmersPage() {
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
-                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
+                actions = {
+                    ExportDataButton {
+                        exportToCSVWithMediaStore<FinalFormer>(
+                            context,
+                            databaseData = formerViewModel.generateFinalFormersList(),
+                            str = "Nome,Idade,Anos_experiencia,Genero\n",
+                            outputFileName = "Agricultores.csv"
+                        )
+                        showToast(context, Labels.DataExportDone.text)
+                    }
+                }
             )
         },
         containerColor = Color.DarkGray,
