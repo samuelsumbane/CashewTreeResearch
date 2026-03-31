@@ -3,10 +3,12 @@ package com.samuelsumbane.cashewtreedata.presentation
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samuelsumbane.cashewtreedata.data.repository.ResearchRepository
+import com.samuelsumbane.cashewtreedata.domain.model.FinalResearch
 import com.samuelsumbane.cashewtreedata.domain.model.Research
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -18,7 +20,7 @@ class ResearchViewModel(
     val _state = MutableStateFlow(ResearchUiState())
     val researchUiState = _state.asStateFlow()
 
-    val researchs = repo.researchs.stateIn(
+    val researchs = repo.researchsWithFormers.stateIn(
         viewModelScope,
         SharingStarted.WhileSubscribed(5000),
         emptyList()
@@ -52,6 +54,28 @@ class ResearchViewModel(
                 deases = deases
             )
             repo.addResearch(newResearch)
+        }
+    }
+
+    fun exportResearchData(): List<FinalResearch> {
+        return buildList {
+            researchs.value.forEach {
+                add(FinalResearch(
+                    it.former.name,
+                    it.former.genere,
+                    it.former.experienceYear,
+                    it.research.location,
+                    it.research.fugicidaName,
+                    it.research.puliverizationMonth,
+                    it.research.productionYear,
+                    it.research.cashewTreeAge,
+                    it.research.productionQuality,
+                    it.research.producedQuantity,
+                    it.research.pricePerKG,
+                    it.research.wasPulverized,
+                    it.research.deases,
+                ))
+            }
         }
     }
 

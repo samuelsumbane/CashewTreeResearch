@@ -1,18 +1,20 @@
 package com.samuelsumbane.cashewtreedata.domain.model
 
-//data class Research(
-//    val formerId: Int, //formerId
-//    val location: String,
-//    val fugicidaName: String,
-//    val puliverizationMonth: String,
-//    val productionYear: String,
-//    val cashewTreeAge: Int,
-//    val productionQuality: ProductionQuality,
-//    val producedQuantity: Double,
-//    val pricePerKG: Double,
-//    val wasPulverized: Boolean,
-//    val deases: String
-//)
+data class FinalResearch(
+    val name: String,
+    val genere: String,
+    val experienceYear: Int,
+    val location: String,
+    val fugicidaName: String,
+    val puliverizationMonth: String,
+    val productionYear: String,
+    val cashewTreeAge: Int,
+    val productionQuality: String,
+    val producedQuantity: Double,
+    val pricePerKG: Double,
+    val wasPulverized: Boolean,
+    val deases: String
+)
 
 
 

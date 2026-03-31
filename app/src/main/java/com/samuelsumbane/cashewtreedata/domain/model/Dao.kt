@@ -10,7 +10,7 @@ import kotlinx.coroutines.flow.Flow
 @Dao
 interface ResearcDao {
     @Query("SELECT * FROM research")
-    fun getAll(): Flow<List<Research>>
+    fun getAll(): Flow<List<ResearchWithFormer>>
 
     @Insert
     suspend fun insertResearch(research: Research)

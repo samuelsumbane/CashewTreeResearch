@@ -63,7 +63,9 @@ fun ViewCashewData() {
 
     val cashewTreeViewModel by remember { mutableStateOf(getKoin().get<ResearchViewModel>()) }
 
+//    val researchUiState by cashewTreeViewModel.researchs.collectAsState()
     val researchData by cashewTreeViewModel.researchs.collectAsState()
+    println("os dados: $researchData")
 
     val navigator = LocalNavigator.currentOrThrow
     val context = LocalContext.current
@@ -72,7 +74,7 @@ fun ViewCashewData() {
         if (searchedDataValue.isBlank()) {
             researchData
         } else {
-            researchData.filter { it.formerId == 0 }
+            researchData.filter { it.former.name.contains(searchedDataValue) }
         }
     }
 
@@ -89,8 +91,8 @@ fun ViewCashewData() {
                     ExportDataButton {
                         exportToCSVWithMediaStore(
                             context,
-                            searchedData,
-                            str = "", outputFileName = "Cajus_dados.csv")
+                            cashewTreeViewModel.exportResearchData(),
+                            str = "Nome,Genero,Experiencia,Localização,Fugicida,Mes_de_pulverizacao,AnoDeProducao,Idade_do_canjueiro,Qualidade_da_producao,Quantidade_produzida,Preco_por_kg,Foi_pulverizado_ou_nao,doencas\n", outputFileName = "Cajus_dados.csv")
                         showToast(context, Labels.DataExportDone.text)
                     }
                 }
@@ -123,7 +125,7 @@ fun ViewCashewData() {
                     modifier = Modifier.padding(top = 45.dp)
                 ) {
                     items(searchedData) {
-                        RowItem(it.location, it.productionYear, "12:00")
+                        RowItem(it.former.name, it.research.location, it.research.productionYear)
                     }
                 }
             }
