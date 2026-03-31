@@ -22,6 +22,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
@@ -42,6 +43,7 @@ import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.Agricultor
 import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
+import com.samuelsumbane.cashewtreedata.presentation.InputName
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
 import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
 import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
@@ -70,7 +72,7 @@ fun AddFormerPage() {
 
     val formRepo = FormersRepo
     val formersViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
-
+    val formersState by formersViewModel.formerState.collectAsState()
 
     var formGenere by remember { mutableStateOf(Genere.Other)}
 
@@ -98,6 +100,20 @@ fun AddFormerPage() {
                 onCancelClicked = { navigator.pop() }
             ) {
                 coroutineScope.launch {
+                    if (formerName.isBlank()) {
+                        formersViewModel.setFieldError(InputName.formerName, "O nome do agricultor é obrigatório")
+                        return@launch
+                    } else {
+                        formersViewModel.removeFieldError(InputName.formerName)
+                    }
+
+                    if (formerBirthDate == 0L) {
+                        formersViewModel.setFieldError(InputName.formerBirthDay, "A data de nascimento é obrigatória")
+                        return@launch
+                    } else {
+                        formersViewModel.removeFieldError(InputName.formerBirthDay)
+                    }
+
                     formersViewModel.addFormer(formerName, formerBirthDate, formerExperience, formGenere.genereName)
 
                     formerName = ""
@@ -125,12 +141,14 @@ fun AddFormerPage() {
 
                 AppTextInput(
                     inputLabel = "Nome do agricultor",
-                    value = formerName
+                    value = formerName,
+                    errorText = formersState.fieldsErrors[InputName.formerName]
                 ) { formerName = it }
 
                 DropDownComponent(
                     title = "Data de nascimento",
-                    selectedOptionText = if (formerBirthDate != 0L) convertLongToDateString(formerBirthDate) else ""
+                    selectedOptionText = if (formerBirthDate != 0L) convertLongToDateString(formerBirthDate) else "",
+                    errorText = formersState.fieldsErrors[InputName.formerBirthDay]
                 ) { showDatePickerDropDown = true }
 
                 if (showDatePickerDropDown) {

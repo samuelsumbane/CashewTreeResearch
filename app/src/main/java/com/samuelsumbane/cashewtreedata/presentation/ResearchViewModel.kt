@@ -4,13 +4,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samuelsumbane.cashewtreedata.data.repository.ResearchRepository
 import com.samuelsumbane.cashewtreedata.domain.model.Research
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.stateIn
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 class ResearchViewModel(
     private val repo: ResearchRepository
 ) : ViewModel() {
+
+    val _state = MutableStateFlow(ResearchUiState())
+    val researchUiState = _state.asStateFlow()
 
     val researchs = repo.researchs.stateIn(
         viewModelScope,
@@ -47,5 +53,15 @@ class ResearchViewModel(
             )
             repo.addResearch(newResearch)
         }
+    }
+
+    fun setError(inputName: InputName, error: String) {
+        _state.update {
+            it.copy(errors = it.errors.toMutableMap().apply { put(inputName, error)})
+        }
+    }
+
+    fun removeError(inputName: InputName) {
+        _state.update { it.copy(errors = it.errors.toMutableMap().apply { remove(inputName) }) }
     }
 }

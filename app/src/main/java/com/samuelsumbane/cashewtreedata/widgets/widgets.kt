@@ -24,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
@@ -109,6 +110,7 @@ fun BackButton(onClick: () -> Unit) {
 fun DropDownComponent(
     title: String,
     selectedOptionText: String,
+    errorText: String? = null,
     onClick: () -> Unit
 ) {
     Column(
@@ -133,6 +135,8 @@ fun DropDownComponent(
                 Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Open options")
             }
         }
+
+        errorText?.let { ErrorLabelText(it) }
     }
 }
 
@@ -217,4 +221,13 @@ fun NoDataFound() {
             Text("Nenhum registro encontrado")
         }
     }
+}
+
+@Composable
+fun ErrorLabelText(errorText: String) {
+    Text(
+        text = errorText,
+        style = MaterialTheme.typography.bodySmall,
+        color = Color.Red
+    )
 }

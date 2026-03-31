@@ -56,6 +56,8 @@ import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.ProductionQuality
 import com.samuelsumbane.cashewtreedata.domain.model.Research
 import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
+import com.samuelsumbane.cashewtreedata.presentation.InputName
+import com.samuelsumbane.cashewtreedata.presentation.Labels
 import com.samuelsumbane.cashewtreedata.presentation.ResearchViewModel
 import com.samuelsumbane.cashewtreedata.repository.CashewTreeRepository
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
@@ -89,7 +91,7 @@ fun AddResearchData() {
     val months = listOf("Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")
 
     val cashewViewModel by remember { mutableStateOf(getKoin().get<ResearchViewModel>())}
-
+    val researchUiState by cashewViewModel.researchUiState.collectAsState()
 
     val context = LocalContext.current
 
@@ -189,7 +191,8 @@ fun AddResearchData() {
 
                         DropDownComponent(
                             title = "Agricultor",
-                            selectedOptionText = formerName
+                            selectedOptionText = formerName,
+                            errorText = researchUiState.errors[InputName.formerName]
                         ) {
                             formersColumnZindex = 2f
                         }
@@ -197,12 +200,13 @@ fun AddResearchData() {
 
                         AppTextInput(
                             inputLabel = "Localização",
-                            value = location
+                            value = location,
+                            errorText = researchUiState.errors[InputName.location]
                         ) { location = it }
 
                         AppTextInput(
                             inputLabel = "Fugicida",
-                            value = fugicidaName
+                            value = fugicidaName,
                         ) { fugicidaName = it }
 
                         AddDataRow()
@@ -235,7 +239,8 @@ fun AddResearchData() {
 
                         DropDownComponent(
                             title = "Selecionar o ano",
-                            selectedOptionText = productionYear
+                            selectedOptionText = productionYear,
+                            errorText = researchUiState.errors[InputName.productionYear]
                         ) { showSelectDateDropDown = true }
 
                         if (showSelectDateDropDown) {
@@ -265,7 +270,7 @@ fun AddResearchData() {
 
                         DropDownComponent(
                             title = "Selecione a qualidade",
-                            selectedOptionText = productionQuality.stringValue
+                            selectedOptionText = productionQuality.stringValue,
                         ) {
                             showQualitiesDropDown = !showQualitiesDropDown
                         }
@@ -274,7 +279,6 @@ fun AddResearchData() {
                             DropdownMenu(
                                 expanded = true,
                                 onDismissRequest = { showQualitiesDropDown = false },
-
                                 ) {
                                 listOf(
                                     ProductionQuality.Low, ProductionQuality.Medium,
@@ -294,6 +298,7 @@ fun AddResearchData() {
                         AppTextInput(
                             inputLabel = "Quantidade da produção",
                             value = producedQuantity.toString(),
+                            errorText = researchUiState.errors[InputName.producedQuantity],
                             keyboardType = KeyboardType.Number
                         ) {
                             producedQuantity = it.toDouble()
@@ -302,12 +307,13 @@ fun AddResearchData() {
                         AppTextInput(
                             inputLabel = "Preço (kg)",
                             value = pricePerKG.toString(),
+                            errorText = researchUiState.errors[InputName.pricePerKG],
                             keyboardType = KeyboardType.Decimal
                         ) { pricePerKG = it.toDouble() }
 
                         AppTextInput(
                             inputLabel = "Doenças",
-                            value = deases
+                            value = deases,
                         ) { deases = it }
 
                         Spacer(Modifier.height(40.dp))
@@ -315,6 +321,36 @@ fun AddResearchData() {
                         CancelAndSubmitButtonRow(
                             onCancelClicked = { navigator.pop() }
                         ) {
+                            if (formerName.isBlank()) {
+                                cashewViewModel.setError(InputName.formerName, Labels.RequiredFormer.text)
+                                return@CancelAndSubmitButtonRow
+                            } else {
+                                cashewViewModel.removeError(InputName.formerName)
+                            }
+
+                            if (location.isBlank()) {
+                                cashewViewModel.setError(InputName.location, Labels.RequiredLocation.text)
+                                return@CancelAndSubmitButtonRow
+                            } else {
+                                cashewViewModel.removeError(InputName.location)
+                            }
+
+                            if (productionYear.toInt() <= 0) {
+                                cashewViewModel.setError(InputName.productionYear, Labels.RequiredProducedYear.text)
+                                return@CancelAndSubmitButtonRow
+                            } else {
+                                cashewViewModel.removeError(InputName.productionYear)
+                            }
+
+//                            if (cashewTreeAge <)
+                            if (pricePerKG <= 0.0) {
+                                cashewViewModel.setError(InputName.pricePerKG, Labels.RequiredProductPrice.text)
+                                return@CancelAndSubmitButtonRow
+                            } else {
+                                cashewViewModel.removeError(InputName.pricePerKG)
+                            }
+
+
                             cashewViewModel.addResearch(
                                 formerId,
                                 location,
