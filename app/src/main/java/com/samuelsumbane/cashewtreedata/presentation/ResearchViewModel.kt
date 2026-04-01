@@ -60,7 +60,8 @@ class ResearchViewModel(
     fun exportResearchData(): List<FinalResearch> {
         return buildList {
             researchs.value.forEach {
-                add(FinalResearch(
+                add(
+                    FinalResearch(
                     it.former.name,
                     it.former.genere,
                     it.former.experienceYear,
@@ -74,7 +75,8 @@ class ResearchViewModel(
                     it.research.pricePerKG,
                     it.research.wasPulverized,
                     it.research.deases,
-                ))
+                    )
+                )
             }
         }
     }

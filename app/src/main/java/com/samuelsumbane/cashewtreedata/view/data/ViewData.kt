@@ -3,6 +3,7 @@ package com.samuelsumbane.cashewtreedata.view.data
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -125,7 +126,9 @@ fun ViewCashewData() {
                     modifier = Modifier.padding(top = 45.dp)
                 ) {
                     items(searchedData) {
-                        RowItem(it.former.name, it.research.location, it.research.productionYear)
+                        RowItem(it.former.name, it.research.location) {
+
+                        }
                     }
                 }
             }
@@ -149,11 +152,17 @@ fun BasicRowItem(
     ) { content() }
 }
 @Composable
-fun RowItem(local: String, date: String, time: String) {
-    BasicRowItem {
-        ItemText(local)
-        ItemText(date)
-        ItemText(time)
+fun RowItem(
+    name: String,
+    location: String,
+    onClick: () -> Unit
+) {
+    BasicRowItem(
+        modifier = Modifier
+            .clickable { onClick() }
+    ) {
+        ItemText(name)
+        ItemText(location)
     }
 }
 
