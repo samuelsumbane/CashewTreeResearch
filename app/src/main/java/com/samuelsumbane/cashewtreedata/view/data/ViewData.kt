@@ -127,7 +127,7 @@ fun ViewCashewData() {
                 ) {
                     items(searchedData) {
                         RowItem(it.former.name, it.research.location) {
-
+                            navigator.push(EachResearchScreen(it))
                         }
                     }
                 }

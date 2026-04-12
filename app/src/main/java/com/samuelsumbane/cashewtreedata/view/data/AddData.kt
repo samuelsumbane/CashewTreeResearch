@@ -102,8 +102,8 @@ fun AddResearchData() {
     var productionYear by remember { mutableStateOf("") }
     var cashewTreeAge by remember { mutableIntStateOf(0) }
     var productionQuality by remember { mutableStateOf(ProductionQuality.Low) }
-    var producedQuantity by remember { mutableDoubleStateOf(0.0) }
-    var pricePerKG by remember { mutableDoubleStateOf(0.0) }
+    var producedQuantity by remember { mutableStateOf("") }
+    var pricePerKG by remember { mutableStateOf("") }
     var wasPulverized by remember { mutableStateOf(false) }
     var deases by remember { mutableStateOf("") }
 
@@ -137,7 +137,7 @@ fun AddResearchData() {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(text = if (formersColumnZindex > 1f) "Selecione um agricultor" else "") },
+                title = { Text(text = if (formersColumnZindex > 1f) "Selecione um agricultor" else "Adicionar dados") },
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
@@ -154,7 +154,8 @@ fun AddResearchData() {
             }
 
         },
-        containerColor = Color.DarkGray
+        containerColor = Color.DarkGray,
+        contentColor = Color.White,
     ) { innerPadding ->
 
         Box(
@@ -172,14 +173,6 @@ fun AddResearchData() {
 
                 .background(Color.DarkGray),
             ) {
-                Row(
-                    modifier = Modifier
-                        .padding(top = 30.dp)
-                        .fillMaxWidth(),
-                    horizontalArrangement = Arrangement.Center
-                ) {
-                    Text("Adicionar dados", fontWeight = FontWeight.Bold, fontSize = 25.sp)
-                }
 
 //                LazyColumn(
 //                    modifier = Modifier
@@ -301,7 +294,9 @@ fun AddResearchData() {
                             errorText = researchUiState.errors[InputName.producedQuantity],
                             keyboardType = KeyboardType.Number
                         ) {
-                            producedQuantity = it.toDouble()
+                            if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                producedQuantity = it
+                            }
                         }
 
                         AppTextInput(
@@ -309,7 +304,11 @@ fun AddResearchData() {
                             value = pricePerKG.toString(),
                             errorText = researchUiState.errors[InputName.pricePerKG],
                             keyboardType = KeyboardType.Decimal
-                        ) { pricePerKG = it.toDouble() }
+                        ) {
+                            if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                pricePerKG = it
+                            }
+                        }
 
                         AppTextInput(
                             inputLabel = "Doenças",
@@ -343,7 +342,7 @@ fun AddResearchData() {
                             }
 
 //                            if (cashewTreeAge <)
-                            if (pricePerKG <= 0.0) {
+                            if ((pricePerKG.toDoubleOrNull() ?: 0.0) <= 0.0) {
                                 cashewViewModel.setError(InputName.pricePerKG, Labels.RequiredProductPrice.text)
                                 return@CancelAndSubmitButtonRow
                             } else {
@@ -359,8 +358,8 @@ fun AddResearchData() {
                                 productionYear,
                                 cashewTreeAge,
                                 productionQuality.stringValue,
-                                producedQuantity,
-                                pricePerKG,
+                                producedQuantity = producedQuantity.toDoubleOrNull() ?: 0.0,
+                                pricePerKG = pricePerKG.toDoubleOrNull() ?: 0.0,
                                 wasPulverized,
                                 deases
                             )
@@ -375,8 +374,8 @@ fun AddResearchData() {
                             productionYear = ""
                             cashewTreeAge = 0
                             productionQuality = ProductionQuality.Low
-                            producedQuantity = 0.0
-                            pricePerKG = 0.0
+                            producedQuantity = ""
+                            pricePerKG = ""
                             wasPulverized = false
                             deases = ""
 

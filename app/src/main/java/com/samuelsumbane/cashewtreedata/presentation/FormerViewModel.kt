@@ -53,8 +53,8 @@ class  FormerViewModel(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun Long?.calculateAge(): Int {
-        return this?.let {
+    fun calculateAge(birthday: Long?): Int {
+        return birthday?.let {
             val birthDate = Instant.ofEpochMilli(it)
                 .atZone(ZoneId.systemDefault())
                 .toLocalDate()
@@ -66,7 +66,7 @@ class  FormerViewModel(
     fun generateFinalFormersList(): List<FinalFormer> {
         return buildList {
             formersList.value.forEach {
-                add(FinalFormer(it.name, age = it.birthDay.calculateAge(), it.experienceYear, it.genere))
+                add(FinalFormer(it.name, age = calculateAge(it.birthDay), it.experienceYear, it.genere))
             }
         }
     }

@@ -26,12 +26,8 @@ import androidx.compose.ui.unit.sp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.samuelsumbane.cashewtreedata.view.data.AddDataScreen
 import com.samuelsumbane.cashewtreedata.view.data.ViewCashDataScreen
-import com.samuelsumbane.cashewtreedata.view.famers.ViewFarmersPage
 import com.samuelsumbane.cashewtreedata.view.famers.ViewFormersScreen
-import com.samuelsumbane.cashewtreedata.widgets.AppButton
-import com.samuelsumbane.cashewtreedata.widgets.BackButton
 
 class HomeScreen : Screen {
     @Composable

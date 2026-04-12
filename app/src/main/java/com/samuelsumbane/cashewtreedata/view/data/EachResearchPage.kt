@@ -6,9 +6,11 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -19,17 +21,16 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.samuelsumbane.cashewtreedata.domain.model.Former
-import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
+import com.samuelsumbane.cashewtreedata.domain.model.ResearchWithFormer
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.TextItem
 
 
-data class EachFormerScreen(val former: Former)  : Screen {
+data class EachResearchScreen(val researchWithFarmer: ResearchWithFormer)  : Screen {
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     override fun Content() {
-        EachResearchPage(former)
+        EachResearchPage(researchWithFarmer)
     }
 }
 
@@ -37,14 +38,13 @@ data class EachFormerScreen(val former: Former)  : Screen {
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EachResearchPage(former: Former) {
+fun EachResearchPage(researchWithFarmer: ResearchWithFormer) {
     val navigator = LocalNavigator.currentOrThrow
-    val currentTimeMillis = System.currentTimeMillis()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Dados do agricultor") },
+                title = { Text("Detalhes da pesquisa") },
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
@@ -62,15 +62,30 @@ fun EachResearchPage(former: Former) {
             Column(
                 modifier = Modifier
                     .padding(20.dp)
-                    .background(Color.Blue, RoundedCornerShape(12.dp))
+                    .background(Color.LightGray, RoundedCornerShape(12.dp))
                     .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextItem("Nome", former.name)
-                TextItem("Data de nascimento", convertLongToDateString(former.birthDay))
-                TextItem("Idade", age.toString())
-//                TextItem()
+                TextItem("Nome", researchWithFarmer.former.name)
+                TextItem("Gênero", researchWithFarmer.former.genere)
+                HorizontalDivider(modifier = Modifier.fillMaxWidth())
+                TextItem("Localização", researchWithFarmer.research.location)
+                TextItem("Mês de pulv", researchWithFarmer.research.puliverizationMonth)
+                TextItem("Ano de produção", researchWithFarmer.research.productionYear)
+                TextItem("Idade do cajueiro", researchWithFarmer.research.cashewTreeAge.toString())
+                TextItem("Quali. produção", researchWithFarmer.research.productionQuality)
+                TextItem("Qtd. produção", researchWithFarmer.research.producedQuantity.toString())
+                TextItem("Preço", researchWithFarmer.research.pricePerKG.toString())
+                TextItem("Pulverizado?", booleanString(researchWithFarmer.research.wasPulverized))
+                TextItem("Doenças", researchWithFarmer.research.deases)
             }
         }
+    }
+}
+
+fun booleanString (booleanValue: Boolean): String {
+    return when (booleanValue) {
+        true -> "Sim"
+        false -> "Não"
     }
 }

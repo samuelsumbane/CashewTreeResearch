@@ -132,11 +132,11 @@ fun DropDownComponent(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(selectedOptionText, modifier = Modifier.padding(start = 10.dp))
+            Text(selectedOptionText, modifier = Modifier.padding(start = 10.dp), color = Color.Black)
             IconButton(
                 onClick = onClick
             ) {
-                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Open options")
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Open options", tint = Color.Black)
             }
         }
 
@@ -172,8 +172,8 @@ fun TextItem(key: String, value: String) {
             .fillMaxWidth(),
         horizontalArrangement = Arrangement.SpaceBetween
     ) {
-        Text(key)
-        Text(value)
+        Text(key, color = Color.Black)
+        Text(value, color = Color.Black)
     }
 }
 
