@@ -22,19 +22,20 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.samuelsumbane.cashewtreedata.domain.model.Former
+import com.samuelsumbane.cashewtreedata.domain.model.Farmer
 import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
 import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.TextItem
+import org.koin.androidx.compose.koinViewModel
 import org.koin.java.KoinJavaComponent.getKoin
 
 
-data class EachFormerScreen(val former: Former)  : Screen {
+data class EachFormerScreen(val farmer: Farmer)  : Screen {
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     override fun Content() {
-        EachFormerPage(former)
+        EachFormerPage(farmer)
     }
 }
 
@@ -42,10 +43,9 @@ data class EachFormerScreen(val former: Former)  : Screen {
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EachFormerPage(former: Former) {
+fun EachFormerPage(farmer: Farmer) {
     val navigator = LocalNavigator.currentOrThrow
-    val currentTimeMillis = System.currentTimeMillis()
-    val farmerViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>())}
+    val farmerViewModel: FormerViewModel = koinViewModel()
 
     Scaffold(
         topBar = {
@@ -72,9 +72,12 @@ fun EachFormerPage(former: Former) {
                     .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextItem("Nome", former.name)
-                TextItem("Data de nascimento", convertLongToDateString(former.birthDay))
-                TextItem("Idade", farmerViewModel.calculateAge(former.birthDay).toString())
+                TextItem("Nome", farmer.name)
+                TextItem("Data de nascimento", convertLongToDateString(farmer.birthDay))
+                TextItem("Idade", farmerViewModel.calculateAge(farmer.birthDay).toString())
+                TextItem("Área de produção", farmer.productionArea.toString())
+                TextItem("Localização", farmer.location)
+
 //                TextItem()
             }
         }

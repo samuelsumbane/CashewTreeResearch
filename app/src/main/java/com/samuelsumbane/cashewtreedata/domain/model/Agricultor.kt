@@ -11,8 +11,10 @@ data class Agricultor(
 data class FinalFormer(
     val name: String,
     val age: Int,
-    val experienceYear: Int,
-    val genere: String
+    val experienceYear: String,
+    val genere: String,
+    val productionArea: Double,
+    val location: String
 )
 
 enum class Genere(val genereName: String) {

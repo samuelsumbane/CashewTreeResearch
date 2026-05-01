@@ -70,7 +70,9 @@ fun AppRadioButton(
 
 
 @Composable
-fun AddDataRow() {
+fun AddDataRow(
+    onChange: (Boolean) -> Unit
+) {
     val options = listOf("Sim", "Não")
     var selectedOption by remember { mutableStateOf(options[0]) }
 
@@ -86,6 +88,7 @@ fun AddDataRow() {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     AppRadioButton(selected = option == selectedOption) {
                         selectedOption = option
+                        onChange(option == "Sim")
                     }
                     Text(option)
                 }

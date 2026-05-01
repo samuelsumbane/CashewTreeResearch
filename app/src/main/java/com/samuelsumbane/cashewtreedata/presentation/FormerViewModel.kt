@@ -6,7 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.samuelsumbane.cashewtreedata.FormerRepository
 import com.samuelsumbane.cashewtreedata.domain.model.FinalFormer
-import com.samuelsumbane.cashewtreedata.domain.model.Former
+import com.samuelsumbane.cashewtreedata.domain.model.Farmer
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
@@ -17,7 +17,6 @@ import java.time.Instant
 import java.time.LocalDate
 import java.time.Period
 import java.time.ZoneId
-import kotlin.math.exp
 
 class  FormerViewModel(
     private val repo: FormerRepository
@@ -36,15 +35,19 @@ class  FormerViewModel(
 
     fun addFormer(
         name: String,
+        location: String,
         birthDay: Long,
-        experienceYear: Int,
+        productionArea: Double,
+        experienceYear: String,
         genere: String
     ) {
        viewModelScope.launch {
            repo.addFormer(
-               Former(
+               Farmer(
                    name = name,
+                   location = location,
                    birthDay = birthDay,
+                   productionArea = productionArea,
                    experienceYear = experienceYear,
                    genere = genere
                )
@@ -66,7 +69,7 @@ class  FormerViewModel(
     fun generateFinalFormersList(): List<FinalFormer> {
         return buildList {
             formersList.value.forEach {
-                add(FinalFormer(it.name, age = calculateAge(it.birthDay), it.experienceYear, it.genere))
+                add(FinalFormer(it.name, age = calculateAge(it.birthDay), it.experienceYear, it.genere, it.productionArea, it.location))
             }
         }
     }
@@ -81,5 +84,13 @@ class  FormerViewModel(
         _state.update {
             it.copy(fieldsErrors = it.fieldsErrors.toMutableMap().apply { remove(field) })
         }
+    }
+
+    fun fillForm(
+        location: String? = null,
+        productionArea: Double? = null
+    ) {
+        location?.let { _state.update { it.copy(location = location) } }
+        productionArea?.let { _state.update { it.copy(productionArea = productionArea)}}
     }
 }

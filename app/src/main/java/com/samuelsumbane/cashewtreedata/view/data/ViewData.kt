@@ -75,7 +75,7 @@ fun ViewCashewData() {
         if (searchedDataValue.isBlank()) {
             researchData
         } else {
-            researchData.filter { it.former.name.contains(searchedDataValue) }
+            researchData.filter { it.farmer.name.contains(searchedDataValue) }
         }
     }
 
@@ -126,7 +126,7 @@ fun ViewCashewData() {
                     modifier = Modifier.padding(top = 45.dp)
                 ) {
                     items(searchedData) {
-                        RowItem(it.former.name, it.research.location) {
+                        RowItem(it.farmer.name, it.farmer.location) {
                             navigator.push(EachResearchScreen(it))
                         }
                     }

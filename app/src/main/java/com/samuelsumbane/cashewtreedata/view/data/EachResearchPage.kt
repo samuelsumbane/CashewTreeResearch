@@ -21,12 +21,12 @@ import androidx.compose.ui.unit.dp
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.samuelsumbane.cashewtreedata.domain.model.ResearchWithFormer
+import com.samuelsumbane.cashewtreedata.domain.model.ResearchWithFarmer
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.TextItem
 
 
-data class EachResearchScreen(val researchWithFarmer: ResearchWithFormer)  : Screen {
+data class EachResearchScreen(val researchWithFarmer: ResearchWithFarmer)  : Screen {
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
     override fun Content() {
@@ -38,7 +38,7 @@ data class EachResearchScreen(val researchWithFarmer: ResearchWithFormer)  : Scr
 @RequiresApi(Build.VERSION_CODES.O)
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun EachResearchPage(researchWithFarmer: ResearchWithFormer) {
+fun EachResearchPage(researchWithFarmer: ResearchWithFarmer) {
     val navigator = LocalNavigator.currentOrThrow
 
     Scaffold(
@@ -66,10 +66,9 @@ fun EachResearchPage(researchWithFarmer: ResearchWithFormer) {
                     .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                TextItem("Nome", researchWithFarmer.former.name)
-                TextItem("Gênero", researchWithFarmer.former.genere)
+                TextItem("Nome", researchWithFarmer.farmer.name)
+                TextItem("Gênero", researchWithFarmer.farmer.genere)
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                TextItem("Localização", researchWithFarmer.research.location)
                 TextItem("Mês de pulv", researchWithFarmer.research.puliverizationMonth)
                 TextItem("Ano de produção", researchWithFarmer.research.productionYear)
                 TextItem("Idade do cajueiro", researchWithFarmer.research.cashewTreeAge.toString())

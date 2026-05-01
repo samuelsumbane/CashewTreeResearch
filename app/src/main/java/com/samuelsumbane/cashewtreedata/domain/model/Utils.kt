@@ -36,8 +36,8 @@ object Utils {
                     writer.write(str)
                     databaseData.forEach { data ->
                         when (data) {
-                            is Research -> writer.write("${data.formerId},${data.location}\n")
-                            is FinalFormer -> writer.write("${data.name},${data.age},${data.experienceYear},${data.genere},\n")
+                            is Research -> writer.write("${data.farmerId},${data}\n")
+                            is FinalFormer -> writer.write("${data.name},${data.age},${data.experienceYear},${data.genere},${data.productionArea},${data.location}\n")
                         }
                     }
                 }

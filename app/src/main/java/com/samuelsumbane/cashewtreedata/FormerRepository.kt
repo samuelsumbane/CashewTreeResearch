@@ -1,13 +1,13 @@
 package com.samuelsumbane.cashewtreedata
 
-import com.samuelsumbane.cashewtreedata.domain.model.Former
-import com.samuelsumbane.cashewtreedata.domain.model.FormerDao
+import com.samuelsumbane.cashewtreedata.domain.model.Farmer
+import com.samuelsumbane.cashewtreedata.domain.dbModel.FormerDao
 
 class FormerRepository(private val formerDao: FormerDao) {
 
     val formers = formerDao.getAllFormers()
 
-    suspend fun addFormer(former: Former) {
-        formerDao.insertFormer(former)
+    suspend fun addFormer(farmer: Farmer) {
+        formerDao.insertFormer(farmer)
     }
 }

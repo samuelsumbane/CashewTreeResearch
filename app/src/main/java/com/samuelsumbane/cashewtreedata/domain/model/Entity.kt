@@ -1,6 +1,5 @@
 package com.samuelsumbane.cashewtreedata.domain.model
 
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.room.Embedded
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -12,40 +11,41 @@ data class Research(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
-    val formerId: Int = 0,
+    val farmerId: Int = 0,
 
-    val location: String,
-    val fugicidaName: String,
-    val puliverizationMonth: String,
     val productionYear: String,
-    val cashewTreeAge: Int,
+//    val useFugicida: Boolean,
+    val wasPulverized: Boolean,
+    val fugicidaName: String,
+    val usedFugicidaPerYear: Double?,
+    val puliverizationMonth: String,
+    val cashewTreeAge: String,
     val productionQuality: String,
     val producedQuantity: Double,
     val pricePerKG: Double,
-    val wasPulverized: Boolean,
     val deases: String
 )
 
-@Entity(tableName = "former")
-data class Former(
-
+@Entity(tableName = "farmer")
+data class Farmer(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
 
     val name: String,
+    val location: String,
     val birthDay: Long,
-    val experienceYear: Int,
+    val productionArea: Double,
+    val experienceYear: String,
     val genere: String
 )
 
-
-data class ResearchWithFormer(
+data class ResearchWithFarmer(
     @Embedded val research: Research,
 
     @Relation(
-        parentColumn = "formerId",
+        parentColumn = "farmerId",
         entityColumn = "id"
     )
 
-    val former: Former
+    val farmer: Farmer
 )

@@ -1,12 +1,12 @@
 package com.samuelsumbane.cashewtreedata.domain.model
 
-import android.content.Context
 import androidx.room.Database
-import androidx.room.Room
 import androidx.room.RoomDatabase
+import com.samuelsumbane.cashewtreedata.domain.dbModel.FormerDao
+import com.samuelsumbane.cashewtreedata.domain.dbModel.ResearcDao
 
 @Database(
-    entities = [Research::class, Former::class],
+    entities = [Research::class, Farmer::class],
     version = 1,
     exportSchema = false
 )

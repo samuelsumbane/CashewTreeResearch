@@ -8,7 +8,6 @@ import com.samuelsumbane.cashewtreedata.domain.model.Research
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.forEach
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
@@ -27,12 +26,12 @@ class ResearchViewModel(
     )
 
     fun addResearch(
-        formerId: Int,
-        location: String,
+        farmerId: Int,
         fugicidaName: String,
+        usedFugicidaPerYear: Double?,
         puliverizationMonth: String,
         productionYear: String,
-        cashewTreeAge: Int,
+        cashewTreeAge: String,
         productionQuality: String,
         producedQuantity: Double,
         pricePerKG: Double,
@@ -41,16 +40,16 @@ class ResearchViewModel(
     ) {
         viewModelScope.launch {
             val newResearch = Research(
-                formerId = formerId,
-                location = location,
-                fugicidaName = fugicidaName,
-                puliverizationMonth = puliverizationMonth,
+                farmerId = farmerId,
                 productionYear = productionYear,
+                fugicidaName = fugicidaName,
+                usedFugicidaPerYear = usedFugicidaPerYear,
+                wasPulverized = wasPulverized,
+                puliverizationMonth = puliverizationMonth,
                 cashewTreeAge = cashewTreeAge,
                 productionQuality = productionQuality,
                 producedQuantity = producedQuantity,
                 pricePerKG = pricePerKG,
-                wasPulverized = wasPulverized,
                 deases = deases
             )
             repo.addResearch(newResearch)
@@ -62,18 +61,19 @@ class ResearchViewModel(
             researchs.value.forEach {
                 add(
                     FinalResearch(
-                    it.former.name,
-                    it.former.genere,
-                    it.former.experienceYear,
-                    it.research.location,
-                    it.research.fugicidaName,
-                    it.research.puliverizationMonth,
+                    it.farmer.name,
+                    it.farmer.location,
+                    it.farmer.genere,
+                    it.farmer.experienceYear,
                     it.research.productionYear,
+                    it.research.fugicidaName,
+                        it.research.usedFugicidaPerYear,
+                    it.research.wasPulverized,
+                    it.research.puliverizationMonth,
                     it.research.cashewTreeAge,
                     it.research.productionQuality,
                     it.research.producedQuantity,
                     it.research.pricePerKG,
-                    it.research.wasPulverized,
                     it.research.deases,
                     )
                 )
@@ -89,5 +89,15 @@ class ResearchViewModel(
 
     fun removeError(inputName: InputName) {
         _state.update { it.copy(errors = it.errors.toMutableMap().apply { remove(inputName) }) }
+    }
+
+    fun fillResearchFoarm(
+        showAgeIntervalDropMenu: Boolean? = null,
+        cashewTreeAge: String? = null,
+        usedFugicidaPerYear: Double? = null
+    ) {
+        showAgeIntervalDropMenu?.let { _state.update { it.copy(showAgeIntervals = showAgeIntervalDropMenu) } }
+        cashewTreeAge?.let { _state.update { it.copy(cashewTreeAge = cashewTreeAge) } }
+        usedFugicidaPerYear?.let { _state.update { it.copy(usedFugicidaPerYear = usedFugicidaPerYear) } }
     }
 }

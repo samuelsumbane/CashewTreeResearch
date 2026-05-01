@@ -29,6 +29,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -53,6 +54,7 @@ import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
+import com.samuelsumbane.cashewtreedata.domain.model.AgeIntervals
 import com.samuelsumbane.cashewtreedata.domain.model.ProductionQuality
 import com.samuelsumbane.cashewtreedata.domain.model.Research
 import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
@@ -72,6 +74,7 @@ import com.samuelsumbane.cashewtreedata.widgets.DropDownComponent
 import com.samuelsumbane.cashewtreedata.widgets.NoDataFound
 import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
 import com.samuelsumbane.cashewtreedata.widgets.showToast
+import org.koin.androidx.compose.koinViewModel
 import org.koin.java.KoinJavaComponent.getKoin
 
 class AddDataScreen : Screen {
@@ -90,7 +93,7 @@ fun AddResearchData() {
 
     val months = listOf("Janeiro","Fevereiro","Março","Abril","Maio","Junho","Julho","Agosto","Setembro","Outubro","Novembro","Dezembro")
 
-    val cashewViewModel by remember { mutableStateOf(getKoin().get<ResearchViewModel>())}
+    val cashewViewModel: ResearchViewModel = koinViewModel()
     val researchUiState by cashewViewModel.researchUiState.collectAsState()
 
     val context = LocalContext.current
@@ -100,7 +103,7 @@ fun AddResearchData() {
     var fugicidaName by remember { mutableStateOf("") }
     var puliverizationMonth by remember { mutableStateOf("") }
     var productionYear by remember { mutableStateOf("") }
-    var cashewTreeAge by remember { mutableIntStateOf(0) }
+    var cashewTreeAge by remember { mutableStateOf("") }
     var productionQuality by remember { mutableStateOf(ProductionQuality.Low) }
     var producedQuantity by remember { mutableStateOf("") }
     var pricePerKG by remember { mutableStateOf("") }
@@ -190,21 +193,16 @@ fun AddResearchData() {
                             formersColumnZindex = 2f
                         }
 
-
-                        AppTextInput(
-                            inputLabel = "Localização",
-                            value = location,
-                            errorText = researchUiState.errors[InputName.location]
-                        ) { location = it }
-
-                        AppTextInput(
-                            inputLabel = "Fugicida",
-                            value = fugicidaName,
-                        ) { fugicidaName = it }
-
-                        AddDataRow()
+                        AddDataRow { wasPulverized = it }
 
                         AnimatedVisibility (wasPulverized) {
+                            AppTextInput(
+                                inputLabel = "Fugicida",
+                                value = fugicidaName,
+                            ) { fugicidaName = it }
+
+
+
                             DropDownComponent(
                                 title = "Selecione o mês de pulverização",
                                 selectedOptionText = puliverizationMonth
@@ -228,7 +226,19 @@ fun AddResearchData() {
                                     }
                                 }
                             }
+
+                            AppTextInput(
+                                inputLabel = "Fugicida usada no ano",
+                                value = researchUiState.usedFugicidaPerYear?.toString() ?: "0.0",
+                                errorText = "",
+                                keyboardType = KeyboardType.Decimal
+                            ) {
+                                if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                                    cashewViewModel.fillResearchFoarm(usedFugicidaPerYear = it.toDouble())
+                                }
+                            }
                         }
+
 
                         DropDownComponent(
                             title = "Selecionar o ano",
@@ -255,11 +265,26 @@ fun AddResearchData() {
                             }
                         }
 
-                        AppTextInput(
-                            inputLabel = "Idade do canjueiro",
-                            value = cashewTreeAge.toString(),
-                            keyboardType = KeyboardType.Number
-                        ) { cashewTreeAge = it.toInt() }
+                        DropDownComponent(
+                            title = "Idade do canjueiro",
+                            selectedOptionText = cashewTreeAge
+                        ) {
+                            cashewViewModel.fillResearchFoarm(showAgeIntervalDropMenu = !researchUiState.showAgeIntervals)
+                        }
+
+                        if (researchUiState.showAgeIntervals) {
+                            DropdownMenu(
+                                expanded = true,
+                                onDismissRequest = { cashewViewModel.fillResearchFoarm(showAgeIntervalDropMenu = false) }
+                            ) {
+                                AgeIntervals.entries.forEach {
+                                    DropdownMenuItem(
+                                        text = { Text(it.stringValue) },
+                                        onClick = { cashewTreeAge = it.stringValue }
+                                    )
+                                }
+                            }
+                        }
 
                         DropDownComponent(
                             title = "Selecione a qualidade",
@@ -352,8 +377,8 @@ fun AddResearchData() {
 
                             cashewViewModel.addResearch(
                                 formerId,
-                                location,
                                 fugicidaName,
+                                researchUiState.usedFugicidaPerYear,
                                 puliverizationMonth,
                                 productionYear,
                                 cashewTreeAge,
@@ -372,7 +397,7 @@ fun AddResearchData() {
                             fugicidaName = ""
                             puliverizationMonth = ""
                             productionYear = ""
-                            cashewTreeAge = 0
+                            cashewTreeAge = ""
                             productionQuality = ProductionQuality.Low
                             producedQuantity = ""
                             pricePerKG = ""

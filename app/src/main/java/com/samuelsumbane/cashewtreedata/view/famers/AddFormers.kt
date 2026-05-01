@@ -3,12 +3,8 @@ package com.samuelsumbane.cashewtreedata.view.famers
 import android.os.Build
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.DatePicker
@@ -24,7 +20,6 @@ import androidx.compose.material3.rememberDatePickerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableLongStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -33,15 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.compose.ui.zIndex
 import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
-import com.samuelsumbane.cashewtreedata.domain.model.Agricultor
+import com.samuelsumbane.cashewtreedata.domain.model.AgeIntervals
 import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
 import com.samuelsumbane.cashewtreedata.presentation.InputName
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
@@ -52,7 +43,7 @@ import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
 import com.samuelsumbane.cashewtreedata.widgets.DropDownComponent
 import com.samuelsumbane.cashewtreedata.widgets.showToast
 import kotlinx.coroutines.launch
-import org.koin.java.KoinJavaComponent.getKoin
+import org.koin.androidx.compose.koinViewModel
 
 
 class AddFormerScreen : Screen {
@@ -71,16 +62,18 @@ fun AddFormerPage() {
     val navigator = LocalNavigator.currentOrThrow
 
     val formRepo = FormersRepo
-    val formersViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
-    val formersState by formersViewModel.formerState.collectAsState()
+//    val formersViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
+    val farmersViewModel: FormerViewModel = koinViewModel()
+    val farmersState by farmersViewModel.formerState.collectAsState()
 
     var formGenere by remember { mutableStateOf(Genere.Other)}
 
     var formerBirthDate by remember { mutableLongStateOf(0L) }
     var formerName by remember { mutableStateOf("") }
-    var formerExperience by remember { mutableIntStateOf(0) }
+    var formerExperience by remember { mutableStateOf("") }
     var showDatePickerDropDown by remember { mutableStateOf(false) }
     var showGenereDropDown by remember { mutableStateOf(false) }
+    var showUserExperienceDropDown by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
 
@@ -94,6 +87,7 @@ fun AddFormerPage() {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent)
             )
         },
+        contentColor = Color.White,
         containerColor = Color.DarkGray,
         bottomBar = {
             CancelAndSubmitButtonRow(
@@ -101,24 +95,31 @@ fun AddFormerPage() {
             ) {
                 coroutineScope.launch {
                     if (formerName.isBlank()) {
-                        formersViewModel.setFieldError(InputName.formerName, "O nome do agricultor é obrigatório")
+                        farmersViewModel.setFieldError(InputName.formerName, "O nome do agricultor é obrigatório")
                         return@launch
                     } else {
-                        formersViewModel.removeFieldError(InputName.formerName)
+                        farmersViewModel.removeFieldError(InputName.formerName)
+                    }
+
+                    if (farmersState.location.isBlank()) {
+                        farmersViewModel.setFieldError(InputName.location, "A localização do agricultor é obrigatória")
+                        return@launch
                     }
 
                     if (formerBirthDate == 0L) {
-                        formersViewModel.setFieldError(InputName.formerBirthDay, "A data de nascimento é obrigatória")
+                        farmersViewModel.setFieldError(InputName.formerBirthDay, "A data de nascimento é obrigatória")
                         return@launch
                     } else {
-                        formersViewModel.removeFieldError(InputName.formerBirthDay)
+                        farmersViewModel.removeFieldError(InputName.formerBirthDay)
                     }
 
-                    formersViewModel.addFormer(formerName, formerBirthDate, formerExperience, formGenere.genereName)
+                    //
+                    farmersViewModel.removeFieldError(InputName.location)
+                    farmersViewModel.addFormer(formerName, farmersState.location, formerBirthDate, farmersState.productionArea, formerExperience, formGenere.genereName)
 
                     formerName = ""
                     formerBirthDate = 0L
-                    formerExperience = 0
+                    formerExperience = ""
 
                     showToast(context, "Novo agricultor adicionado com sucesso")
                 }
@@ -142,13 +143,19 @@ fun AddFormerPage() {
                 AppTextInput(
                     inputLabel = "Nome do agricultor",
                     value = formerName,
-                    errorText = formersState.fieldsErrors[InputName.formerName]
+                    errorText = farmersState.fieldsErrors[InputName.formerName]
                 ) { formerName = it }
+
+                AppTextInput(
+                    inputLabel = "Localização",
+                    value = farmersState.location,
+                    errorText = farmersState.fieldsErrors[InputName.location]
+                ) { farmersViewModel.fillForm(location = it) }
 
                 DropDownComponent(
                     title = "Data de nascimento",
                     selectedOptionText = if (formerBirthDate != 0L) convertLongToDateString(formerBirthDate) else "",
-                    errorText = formersState.fieldsErrors[InputName.formerBirthDay]
+                    errorText = farmersState.fieldsErrors[InputName.formerBirthDay]
                 ) { showDatePickerDropDown = true }
 
                 if (showDatePickerDropDown) {
@@ -172,11 +179,34 @@ fun AddFormerPage() {
                     }
                 }
 
+
                 AppTextInput(
-                    inputLabel = "Exp. Do Agri. (anos)",
-                    value = formerExperience.toString(),
+                    inputLabel = "Area de produção",
+                    value = farmersState.productionArea.toString(),
+                    errorText = "",
                     keyboardType = KeyboardType.Number
-                ) { formerExperience = it.toInt() }
+                ) { farmersViewModel.fillForm(productionArea = farmersState.productionArea) }
+
+                DropDownComponent(
+                    title = "Exp. Do Agri. (anos)",
+                    selectedOptionText = formerExperience
+                ) {
+                    showUserExperienceDropDown = !showUserExperienceDropDown
+                }
+
+                if (showUserExperienceDropDown) {
+                    DropdownMenu(
+                        expanded = true,
+                        onDismissRequest = { showUserExperienceDropDown = false }
+                    ) {
+                        AgeIntervals.entries.forEach {
+                            DropdownMenuItem(
+                                text = { Text(it.stringValue) },
+                                onClick = { formerExperience = it.stringValue }
+                            )
+                        }
+                    }
+                }
 
                 DropDownComponent(
                     title = "Genero",
