@@ -37,6 +37,7 @@ import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
 import com.samuelsumbane.cashewtreedata.presentation.InputName
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
 import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
+import com.samuelsumbane.cashewtreedata.view.data.toStringFormat
 import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
@@ -181,11 +182,15 @@ fun AddFormerPage() {
 
 
                 AppTextInput(
-                    inputLabel = "Area de produção",
-                    value = farmersState.productionArea.toString(),
+                    inputLabel = "Área de produção",
+                    value = farmersState.productionArea.toStringFormat(),
                     errorText = "",
                     keyboardType = KeyboardType.Number
-                ) { farmersViewModel.fillForm(productionArea = farmersState.productionArea) }
+                ) {
+                    if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
+                        farmersViewModel.fillForm(productionArea = it.toDouble())
+                    }
+                }
 
                 DropDownComponent(
                     title = "Exp. Do Agri. (anos)",

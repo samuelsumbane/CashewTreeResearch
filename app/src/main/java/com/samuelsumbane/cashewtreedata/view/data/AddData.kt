@@ -200,17 +200,16 @@ fun AddResearchData() {
                                 inputLabel = "Fugicida",
                                 value = fugicidaName,
                             ) { fugicidaName = it }
-
-
-
+                        }
+                        AnimatedVisibility (wasPulverized) {
                             DropDownComponent(
                                 title = "Selecione o mês de pulverização",
                                 selectedOptionText = puliverizationMonth
                             ) {
                                 showMonthsDropDown = !showMonthsDropDown
                             }
-
-                            if (showMonthsDropDown) {
+                        }
+                        if (showMonthsDropDown) {
                                 DropdownMenu(
                                     expanded = true,
                                     onDismissRequest = { showMonthsDropDown = false }
@@ -226,19 +225,18 @@ fun AddResearchData() {
                                     }
                                 }
                             }
-
+                        AnimatedVisibility (wasPulverized) {
                             AppTextInput(
-                                inputLabel = "Fugicida usada no ano",
-                                value = researchUiState.usedFugicidaPerYear?.toString() ?: "0.0",
+                                inputLabel = "Fugicida usada no ano (Kg)",
+                                value = researchUiState.usedFugicidaPerYear.toStringFormat(),
                                 errorText = "",
-                                keyboardType = KeyboardType.Decimal
+                                keyboardType = KeyboardType.Number
                             ) {
                                 if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
                                     cashewViewModel.fillResearchFoarm(usedFugicidaPerYear = it.toDouble())
                                 }
                             }
                         }
-
 
                         DropDownComponent(
                             title = "Selecionar o ano",
@@ -470,3 +468,5 @@ fun CustomLazyColumn(
         content()
     }
 }
+
+fun Double?.toStringFormat() = this.let { if (it == 0.0) "" else it.toString() } ?: ""

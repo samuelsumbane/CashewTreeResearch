@@ -90,7 +90,7 @@ class  FormerViewModel(
         location: String? = null,
         productionArea: Double? = null
     ) {
-        location?.let { _state.update { it.copy(location = location) } }
-        productionArea?.let { _state.update { it.copy(productionArea = productionArea)}}
+        location?.let { farmerLocation -> _state.update { it.copy(location = farmerLocation) } }
+        productionArea?.let { pArea -> _state.update { it.copy(productionArea = pArea) } }
     }
 }

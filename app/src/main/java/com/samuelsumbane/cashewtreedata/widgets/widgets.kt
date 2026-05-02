@@ -74,11 +74,11 @@ fun AddDataRow(
     onChange: (Boolean) -> Unit
 ) {
     val options = listOf("Sim", "Não")
-    var selectedOption by remember { mutableStateOf(options[0]) }
+    var selectedOption by remember { mutableStateOf(options[1]) }
 
     Column(modifier = Modifier.padding(start = 20.dp)) {
 
-        Text("Pulverizado")
+        Text("Houve pulverização?")
 
         Row(
             modifier = Modifier.fillMaxWidth(),
