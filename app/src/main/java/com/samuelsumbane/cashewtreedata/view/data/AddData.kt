@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
@@ -42,6 +43,7 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
@@ -55,8 +57,10 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.AgeIntervals
+import com.samuelsumbane.cashewtreedata.domain.model.FungicidaUnity
 import com.samuelsumbane.cashewtreedata.domain.model.ProductionQuality
 import com.samuelsumbane.cashewtreedata.domain.model.Research
+import com.samuelsumbane.cashewtreedata.domain.model.Utils.toStringFormat
 import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
 import com.samuelsumbane.cashewtreedata.presentation.InputName
 import com.samuelsumbane.cashewtreedata.presentation.Labels
@@ -70,6 +74,7 @@ import com.samuelsumbane.cashewtreedata.widgets.AppButton
 import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
+import com.samuelsumbane.cashewtreedata.widgets.DoubleInputField
 import com.samuelsumbane.cashewtreedata.widgets.DropDownComponent
 import com.samuelsumbane.cashewtreedata.widgets.NoDataFound
 import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
@@ -98,15 +103,13 @@ fun AddResearchData() {
 
     val context = LocalContext.current
 
-    var personalData by remember { mutableIntStateOf(0) }
-    var location by remember { mutableStateOf("") }
     var fugicidaName by remember { mutableStateOf("") }
     var puliverizationMonth by remember { mutableStateOf("") }
     var productionYear by remember { mutableStateOf("") }
     var cashewTreeAge by remember { mutableStateOf("") }
     var productionQuality by remember { mutableStateOf(ProductionQuality.Low) }
-    var producedQuantity by remember { mutableStateOf("") }
-    var pricePerKG by remember { mutableStateOf("") }
+    var producedQuantity by remember { mutableDoubleStateOf(0.0) }
+    var pricePerKG by remember { mutableDoubleStateOf(0.0) }
     var wasPulverized by remember { mutableStateOf(false) }
     var deases by remember { mutableStateOf("") }
 
@@ -117,14 +120,12 @@ fun AddResearchData() {
     var showSelectDateDropDown by remember { mutableStateOf(false) }
 
     var formersColumnZindex by remember { mutableFloatStateOf(0f) }
-    var formerName by remember { mutableStateOf("Selecione o agricultor") }
+    var formerName by remember { mutableStateOf("") }
     var formerId by remember { mutableIntStateOf(0) }
 
     val navigator = LocalNavigator.currentOrThrow
-    val cashewTreeRepo = CashewTreeRepository
-    val formersRepo = FormersRepo
-//    val formersList = formersRepo.formers
-    val formersViewModel by remember { mutableStateOf(getKoin().get<FormerViewModel>()) }
+    val formersViewModel: FormerViewModel = koinViewModel()
+
     val formersList by formersViewModel.formersList.collectAsState()
 
 
@@ -197,7 +198,7 @@ fun AddResearchData() {
 
                         AnimatedVisibility (wasPulverized) {
                             AppTextInput(
-                                inputLabel = "Fugicida",
+                                inputLabel = "Fungicida",
                                 value = fugicidaName,
                             ) { fugicidaName = it }
                         }
@@ -225,15 +226,22 @@ fun AddResearchData() {
                                     }
                                 }
                             }
+
                         AnimatedVisibility (wasPulverized) {
-                            AppTextInput(
-                                inputLabel = "Fugicida usada no ano (Kg)",
-                                value = researchUiState.usedFugicidaPerYear.toStringFormat(),
-                                errorText = "",
-                                keyboardType = KeyboardType.Number
-                            ) {
-                                if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
-                                    cashewViewModel.fillResearchFoarm(usedFugicidaPerYear = it.toDouble())
+                            Row(verticalAlignment = Alignment.CenterVertically) {
+                                DoubleInputField(
+                                    label = "Fungicida usada no ano",
+                                    value = researchUiState.usedFugicidaPerYear,
+                                    modifier = Modifier.fillMaxWidth(0.7f)
+                                ) {
+                                    cashewViewModel.fillResearchFoarm(usedFugicidaPerYear = it)
+                                }
+
+                                DropDownComponent(
+                                    title = "Unidade",
+                                    selectedOptionText = researchUiState.fungicidaUnity
+                                ) {
+                                    cashewViewModel.fillResearchFoarm(showFungicidaUnityDropDown = !researchUiState.showFungicidaUnityDropDown)
                                 }
                             }
                         }
@@ -241,7 +249,7 @@ fun AddResearchData() {
                         DropDownComponent(
                             title = "Selecionar o ano",
                             selectedOptionText = productionYear,
-                            errorText = researchUiState.errors[InputName.productionYear]
+                            errorText = null
                         ) { showSelectDateDropDown = true }
 
                         if (showSelectDateDropDown) {
@@ -278,7 +286,10 @@ fun AddResearchData() {
                                 AgeIntervals.entries.forEach {
                                     DropdownMenuItem(
                                         text = { Text(it.stringValue) },
-                                        onClick = { cashewTreeAge = it.stringValue }
+                                        onClick = {
+                                            cashewTreeAge = it.stringValue
+                                            cashewViewModel.fillResearchFoarm(showAgeIntervalDropMenu = false)
+                                        }
                                     )
                                 }
                             }
@@ -311,26 +322,20 @@ fun AddResearchData() {
                             }
                         }
 
-                        AppTextInput(
-                            inputLabel = "Quantidade da produção",
-                            value = producedQuantity.toString(),
-                            errorText = researchUiState.errors[InputName.producedQuantity],
-                            keyboardType = KeyboardType.Number
+                        DoubleInputField(
+                            label = "Quantidade da produção (em Kg)",
+                            value = producedQuantity,
+                            errorText = researchUiState.errors[InputName.producedQuantity]
                         ) {
-                            if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
-                                producedQuantity = it
-                            }
+                            producedQuantity = it ?: 0.0
                         }
 
-                        AppTextInput(
-                            inputLabel = "Preço (kg)",
-                            value = pricePerKG.toString(),
-                            errorText = researchUiState.errors[InputName.pricePerKG],
-                            keyboardType = KeyboardType.Decimal
+                        DoubleInputField(
+                            label = "Preço por Kg",
+                            value = pricePerKG,
+                            errorText = researchUiState.errors[InputName.pricePerKG]
                         ) {
-                            if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
-                                pricePerKG = it
-                            }
+                            pricePerKG = it ?: 0.0
                         }
 
                         AppTextInput(
@@ -350,55 +355,39 @@ fun AddResearchData() {
                                 cashewViewModel.removeError(InputName.formerName)
                             }
 
-                            if (location.isBlank()) {
-                                cashewViewModel.setError(InputName.location, Labels.RequiredLocation.text)
-                                return@CancelAndSubmitButtonRow
-                            } else {
-                                cashewViewModel.removeError(InputName.location)
-                            }
-
-                            if (productionYear.toInt() <= 0) {
-                                cashewViewModel.setError(InputName.productionYear, Labels.RequiredProducedYear.text)
-                                return@CancelAndSubmitButtonRow
-                            } else {
-                                cashewViewModel.removeError(InputName.productionYear)
-                            }
-
-//                            if (cashewTreeAge <)
-                            if ((pricePerKG.toDoubleOrNull() ?: 0.0) <= 0.0) {
+                            if (pricePerKG <= 0.0) {
                                 cashewViewModel.setError(InputName.pricePerKG, Labels.RequiredProductPrice.text)
                                 return@CancelAndSubmitButtonRow
                             } else {
                                 cashewViewModel.removeError(InputName.pricePerKG)
                             }
 
-
                             cashewViewModel.addResearch(
                                 formerId,
                                 fugicidaName,
                                 researchUiState.usedFugicidaPerYear,
+                                researchUiState.fungicidaUnity,
                                 puliverizationMonth,
                                 productionYear,
                                 cashewTreeAge,
                                 productionQuality.stringValue,
-                                producedQuantity = producedQuantity.toDoubleOrNull() ?: 0.0,
-                                pricePerKG = pricePerKG.toDoubleOrNull() ?: 0.0,
+                                producedQuantity = producedQuantity,
+                                pricePerKG = pricePerKG,
                                 wasPulverized,
                                 deases
                             )
 
                             showToast(context, "Cadastro feito com sucesso.")
 
-
                             formerId = 0
-                            location = ""
+                            cashewViewModel.fillResearchFoarm(usedFugicidaPerYear = 0.0)
                             fugicidaName = ""
                             puliverizationMonth = ""
                             productionYear = ""
                             cashewTreeAge = ""
                             productionQuality = ProductionQuality.Low
-                            producedQuantity = ""
-                            pricePerKG = ""
+                            producedQuantity = 0.0
+                            pricePerKG = 0.0
                             wasPulverized = false
                             deases = ""
 
@@ -415,7 +404,7 @@ fun AddResearchData() {
                     .background(Color.DarkGray)
             ) {
 
-                SearchComponent(searchedValue) { searchedValue = it }
+                SearchComponent(searchedValue, "Pesquisar agricultor") { searchedValue = it }
 
                 if (formersList.isEmpty()) {
                     NoDataFound()
@@ -424,7 +413,7 @@ fun AddResearchData() {
                         items(searchedFormers) {
                             FormerRowItem(
                                 name = it.name,
-                                age = convertLongToDateString(it.birthDay),
+                                age = it.location,
                                 modifier = Modifier
                                     .clickable {
                                         formerName = it.name
@@ -450,6 +439,24 @@ fun AddResearchData() {
                     }
                 }
             }
+
+            //
+            if (researchUiState.showFungicidaUnityDropDown) {
+                DropdownMenu(
+                    expanded = true,
+                    onDismissRequest = { cashewViewModel.fillResearchFoarm(showFungicidaUnityDropDown = false) },
+                ) {
+                    FungicidaUnity.entries.forEach {
+                        DropdownMenuItem(
+                            text = { Text(it.unity) },
+                            onClick = {
+                                cashewViewModel.fillResearchFoarm(fungicidaUnity = it.unity)
+                                cashewViewModel.fillResearchFoarm(showFungicidaUnityDropDown = false)
+                            }
+                        )
+                    }
+                }
+            }
         }
     }
 }
@@ -469,4 +476,3 @@ fun CustomLazyColumn(
     }
 }
 
-fun Double?.toStringFormat() = this.let { if (it == 0.0) "" else it.toString() } ?: ""

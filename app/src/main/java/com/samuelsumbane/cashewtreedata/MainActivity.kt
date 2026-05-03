@@ -22,8 +22,8 @@ class MainActivity : ComponentActivity() {
 
 //                Navigator(ViewCashDataScreen())
 //                Navigator(AddDataScreen())
-                Navigator(AddFormerScreen())
-//                Navigator(HomeScreen())
+//                Navigator(AddFormerScreen())
+                Navigator(HomeScreen())
             }
         }
     }

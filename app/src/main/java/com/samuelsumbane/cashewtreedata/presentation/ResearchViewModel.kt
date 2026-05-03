@@ -28,7 +28,8 @@ class ResearchViewModel(
     fun addResearch(
         farmerId: Int,
         fugicidaName: String,
-        usedFugicidaPerYear: Double?,
+        usedFugicidaPerYear: Double,
+        fungicidaUnity: String,
         puliverizationMonth: String,
         productionYear: String,
         cashewTreeAge: String,
@@ -44,6 +45,7 @@ class ResearchViewModel(
                 productionYear = productionYear,
                 fugicidaName = fugicidaName,
                 usedFugicidaPerYear = usedFugicidaPerYear,
+                fungicidaUnity = fungicidaUnity,
                 wasPulverized = wasPulverized,
                 puliverizationMonth = puliverizationMonth,
                 cashewTreeAge = cashewTreeAge,
@@ -68,6 +70,7 @@ class ResearchViewModel(
                     it.research.productionYear,
                     it.research.fugicidaName,
                         it.research.usedFugicidaPerYear,
+                        it.research.fungicidaUnity,
                     it.research.wasPulverized,
                     it.research.puliverizationMonth,
                     it.research.cashewTreeAge,
@@ -94,10 +97,14 @@ class ResearchViewModel(
     fun fillResearchFoarm(
         showAgeIntervalDropMenu: Boolean? = null,
         cashewTreeAge: String? = null,
-        usedFugicidaPerYear: Double? = null
+        usedFugicidaPerYear: Double? = null,
+        fungicidaUnity: String? = null,
+        showFungicidaUnityDropDown: Boolean? = null,
     ) {
         showAgeIntervalDropMenu?.let { _state.update { it.copy(showAgeIntervals = showAgeIntervalDropMenu) } }
         cashewTreeAge?.let { _state.update { it.copy(cashewTreeAge = cashewTreeAge) } }
         usedFugicidaPerYear?.let { _state.update { it.copy(usedFugicidaPerYear = usedFugicidaPerYear) } }
+        fungicidaUnity?.let { unity -> _state.update { it.copy(fungicidaUnity = unity) } }
+        showFungicidaUnityDropDown?.let { newValue -> _state.update { it.copy(showFungicidaUnityDropDown = newValue)}}
     }
 }

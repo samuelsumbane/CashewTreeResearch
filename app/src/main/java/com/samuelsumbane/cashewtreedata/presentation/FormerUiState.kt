@@ -6,5 +6,6 @@ data class FormerUiState(
     val formersList: List<Agricultor> = emptyList(),
     val fieldsErrors: Map<InputName, String> = emptyMap(),
     val location: String = "",
-    val productionArea: Double = 0.0
+    val productionArea: String = "",
+    val schoolarity: String = "",
 )

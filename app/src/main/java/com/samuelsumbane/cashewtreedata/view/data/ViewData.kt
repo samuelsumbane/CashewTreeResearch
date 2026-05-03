@@ -45,6 +45,7 @@ import com.samuelsumbane.cashewtreedata.widgets.ExportDataButton
 import com.samuelsumbane.cashewtreedata.widgets.NoDataFound
 import com.samuelsumbane.cashewtreedata.widgets.SearchComponent
 import com.samuelsumbane.cashewtreedata.widgets.showToast
+import org.koin.androidx.compose.koinViewModel
 import org.koin.java.KoinJavaComponent.getKoin
 
 class ViewCashDataScreen : Screen {
@@ -62,11 +63,8 @@ fun ViewCashewData() {
 
     var searchedDataValue by remember { mutableStateOf("") }
 
-    val cashewTreeViewModel by remember { mutableStateOf(getKoin().get<ResearchViewModel>()) }
-
-//    val researchUiState by cashewTreeViewModel.researchs.collectAsState()
+    val cashewTreeViewModel: ResearchViewModel = koinViewModel()
     val researchData by cashewTreeViewModel.researchs.collectAsState()
-    println("os dados: $researchData")
 
     val navigator = LocalNavigator.currentOrThrow
     val context = LocalContext.current
@@ -75,10 +73,12 @@ fun ViewCashewData() {
         if (searchedDataValue.isBlank()) {
             researchData
         } else {
-            researchData.filter { it.farmer.name.contains(searchedDataValue) }
+            researchData.filter {
+                it.farmer.name.contains(searchedDataValue, ignoreCase = true) ||
+                it.research.productionYear.contains(searchedDataValue)
+            }
         }
     }
-
 
     Scaffold(
         topBar = {
@@ -92,8 +92,8 @@ fun ViewCashewData() {
                     ExportDataButton {
                         exportToCSVWithMediaStore(
                             context,
-                            cashewTreeViewModel.exportResearchData(),
-                            str = "Nome,Genero,Experiencia,Localização,Fugicida,Mes_de_pulverizacao,AnoDeProducao,Idade_do_canjueiro,Qualidade_da_producao,Quantidade_produzida,Preco_por_kg,Foi_pulverizado_ou_nao,doencas\n", outputFileName = "Cajus_dados.csv")
+                            searchedData,
+                            str = "Nome,Genero,Ano_de_producao,Houve_pulverizacao,Fungicida,Fungicida_usada_por_ano,Unidade,Mes_de_pulverizacao,Idade_do_canjueiro,Qualidade_da_producao,Qugantidade_produzida,Preco_por_kg,doencas\n", outputFileName = "Cajus_dados.csv")
                         showToast(context, Labels.DataExportDone.text)
                     }
                 }
@@ -119,14 +119,15 @@ fun ViewCashewData() {
                 NoDataFound()
             } else {
                 SearchComponent(
-                    value = searchedDataValue
+                    value = searchedDataValue,
+                    placeholder = "Pesquisar pelo nome ou ano"
                 ) { searchedDataValue = it }
 
                 LazyColumn(
                     modifier = Modifier.padding(top = 45.dp)
                 ) {
                     items(searchedData) {
-                        RowItem(it.farmer.name, it.farmer.location) {
+                        RowItem(it.farmer.name, it.research.productionYear) {
                             navigator.push(EachResearchScreen(it))
                         }
                     }

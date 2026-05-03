@@ -3,6 +3,7 @@ package com.samuelsumbane.cashewtreedata.widgets
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.KeyboardArrowDown
@@ -26,6 +28,7 @@ import androidx.compose.material3.RadioButton
 import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -131,15 +134,13 @@ fun DropDownComponent(
         Row(
             modifier = Modifier
                 .fillMaxWidth()
-                .background(Color.LightGray, RoundedCornerShape(12.dp)),
+                .border(1.dp, Color.White, RoundedCornerShape(12.dp)),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween
         ) {
-            Text(selectedOptionText, modifier = Modifier.padding(start = 10.dp), color = Color.Black)
-            IconButton(
-                onClick = onClick
-            ) {
-                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Open options", tint = Color.Black)
+            Text(selectedOptionText, modifier = Modifier.padding(start = 10.dp), color = Color.White)
+            IconButton(onClick = onClick) {
+                Icon(Icons.Filled.KeyboardArrowDown, contentDescription = "Open options", tint = Color.White)
             }
         }
 
@@ -191,23 +192,23 @@ fun showToast(
 @Composable
 fun SearchComponent(
     value: String,
+    placeholder: String,
     onValueChange: (String) -> Unit
 ) {
     Row(
-        modifier = Modifier
-            .fillMaxWidth()
-//                        .background(Color.Red)
-        ,
+        modifier = Modifier.fillMaxWidth(),
         horizontalArrangement = Arrangement.Center
     ) {
         TextField(
             value = value,
             onValueChange = onValueChange,
-            prefix = {
-                Icon(Icons.Filled.Search, contentDescription = "Search formers")
+            leadingIcon = {
+                Icon(Icons.Filled.Search, contentDescription = "Search icon")
             },
+            placeholder = { Text(placeholder) },
             modifier = Modifier.fillMaxWidth(0.8f),
-            shape = RoundedCornerShape(12.dp)
+            shape = RoundedCornerShape(12.dp),
+            colors = TextFieldDefaults.colors(unfocusedIndicatorColor = Color.Transparent)
         )
     }
 }
@@ -216,16 +217,14 @@ fun SearchComponent(
 fun NoDataFound() {
     Column(
         modifier = Modifier
-            .fillMaxSize()
-//            .background(Color.Red)
-        ,
+            .fillMaxSize(),
         verticalArrangement = Arrangement.Center
     ) {
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.Center
         ) {
-            Text("Nenhum registro encontrado")
+            Text("Nenhum registro encontrado", color = Color.White)
         }
     }
 }

@@ -87,10 +87,10 @@ fun ViewFarmersPage() {
                 colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.Transparent),
                 actions = {
                     ExportDataButton {
-                        exportToCSVWithMediaStore<FinalFormer>(
+                        exportToCSVWithMediaStore(
                             context,
-                            databaseData = formerViewModel.generateFinalFormersList(),
-                            str = "Nome,Idade,Anos_experiencia,Genero\n",
+                            databaseData = formerViewModel.generateFinalFormersList(searchedFormers),
+                            str = "Nome,Idade,Escolaridade,Anos_de_experiencia,Genero,Area_de_producao,Localizacao\n",
                             outputFileName = "Agricultores.csv"
                         )
                         showToast(context, Labels.DataExportDone.text)
@@ -118,7 +118,10 @@ fun ViewFarmersPage() {
                 NoDataFound()
             } else {
 
-                SearchComponent(searchValue) { searchValue = it }
+                SearchComponent(
+                    searchValue,
+                    placeholder = "Pesquisar agricultor"
+                ) { searchValue = it }
 
                 LazyColumn(
                     modifier = Modifier

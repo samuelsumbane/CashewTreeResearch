@@ -6,6 +6,7 @@ import android.os.Build
 import android.os.Environment
 import android.provider.MediaStore
 import androidx.annotation.RequiresApi
+import com.samuelsumbane.cashewtreedata.view.data.booleanString
 import java.io.OutputStreamWriter
 
 object Utils {
@@ -36,12 +37,15 @@ object Utils {
                     writer.write(str)
                     databaseData.forEach { data ->
                         when (data) {
-                            is Research -> writer.write("${data.farmerId},${data}\n")
-                            is FinalFormer -> writer.write("${data.name},${data.age},${data.experienceYear},${data.genere},${data.productionArea},${data.location}\n")
+                            is FinalResearch -> writer.write("${data.name},${data.genere},${data.productionYear},${booleanString(data.wasPulverized)},${data.fugicidaName},${data.usedFugicidaPerYear},${data.fungicidaUnity},${data.puliverizationMonth},${data.cashewTreeAge},${data.productionQuality},${data.producedQuantity},${data.pricePerKG},${data.deases}\n")
+                            is FinalFormer -> writer.write("${data.name},${data.age},${data.schoolarity},${data.experienceYear},${data.genere},${data.productionArea},${data.location}\n")
                         }
                     }
                 }
             }
         }
     }
+
+    fun Double?.toStringFormat() = this.let { if (it == 0.0) "" else it.toString() } ?: "0"
+
 }

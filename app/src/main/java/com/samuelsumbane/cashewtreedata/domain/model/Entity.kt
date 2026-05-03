@@ -18,6 +18,7 @@ data class Research(
     val wasPulverized: Boolean,
     val fugicidaName: String,
     val usedFugicidaPerYear: Double?,
+    val fungicidaUnity: String,
     val puliverizationMonth: String,
     val cashewTreeAge: String,
     val productionQuality: String,
@@ -34,7 +35,8 @@ data class Farmer(
     val name: String,
     val location: String,
     val birthDay: Long,
-    val productionArea: Double,
+    val schoolarity: String,
+    val productionArea: String,
     val experienceYear: String,
     val genere: String
 )

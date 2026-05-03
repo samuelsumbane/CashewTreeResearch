@@ -55,7 +55,8 @@ fun EachFormerPage(farmer: Farmer) {
                     BackButton { navigator.pop() }
                 },
             )
-        }
+        },
+        containerColor = Color.DarkGray,
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -72,14 +73,17 @@ fun EachFormerPage(farmer: Farmer) {
                     .padding(12.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
+                val farmerYears = farmerViewModel.calculateAge(farmer.birthDay)
+                val yearsPlurism = if (farmerYears == 0 || farmerYears == 1) "ano" else "anos"
+
                 TextItem("Nome", farmer.name)
                 TextItem("Data de nascimento", convertLongToDateString(farmer.birthDay))
-                TextItem("Idade", farmerViewModel.calculateAge(farmer.birthDay).toString())
-                TextItem("Área de produção", farmer.productionArea.toString())
+                TextItem("Idade", "$farmerYears $yearsPlurism")
+                TextItem("Escolaridade", farmer.schoolarity)
+                TextItem("Área de produção", "${farmer.productionArea} ha")
                 TextItem("Localização", farmer.location)
-
-//                TextItem()
             }
         }
     }
 }
+

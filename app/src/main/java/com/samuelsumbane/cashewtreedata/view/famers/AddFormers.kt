@@ -33,11 +33,12 @@ import cafe.adriel.voyager.core.screen.Screen
 import cafe.adriel.voyager.navigator.LocalNavigator
 import cafe.adriel.voyager.navigator.currentOrThrow
 import com.samuelsumbane.cashewtreedata.domain.model.AgeIntervals
+import com.samuelsumbane.cashewtreedata.domain.model.Utils.toStringFormat
 import com.samuelsumbane.cashewtreedata.presentation.FormerViewModel
 import com.samuelsumbane.cashewtreedata.presentation.InputName
 import com.samuelsumbane.cashewtreedata.repository.FormersRepo
 import com.samuelsumbane.cashewtreedata.repository.convertLongToDateString
-import com.samuelsumbane.cashewtreedata.view.data.toStringFormat
+import com.samuelsumbane.cashewtreedata.view.data.CustomLazyColumn
 import com.samuelsumbane.cashewtreedata.widgets.AppTextInput
 import com.samuelsumbane.cashewtreedata.widgets.BackButton
 import com.samuelsumbane.cashewtreedata.widgets.CancelAndSubmitButtonRow
@@ -116,11 +117,12 @@ fun AddFormerPage() {
 
                     //
                     farmersViewModel.removeFieldError(InputName.location)
-                    farmersViewModel.addFormer(formerName, farmersState.location, formerBirthDate, farmersState.productionArea, formerExperience, formGenere.genereName)
+                    farmersViewModel.addFormer(formerName, farmersState.location, formerBirthDate, farmersState.schoolarity, farmersState.productionArea, formerExperience, formGenere.genereName)
 
                     formerName = ""
                     formerBirthDate = 0L
                     formerExperience = ""
+                    farmersViewModel.fillForm(location = "", schoolarity = "", productionArea = "")
 
                     showToast(context, "Novo agricultor adicionado com sucesso")
                 }
@@ -141,102 +143,113 @@ fun AddFormerPage() {
                     .background(Color.DarkGray),
             ) {
 
-                AppTextInput(
-                    inputLabel = "Nome do agricultor",
-                    value = formerName,
-                    errorText = farmersState.fieldsErrors[InputName.formerName]
-                ) { formerName = it }
+                CustomLazyColumn {
+                    items(1) {
+                        AppTextInput(
+                            inputLabel = "Nome do agricultor",
+                            value = formerName,
+                            errorText = farmersState.fieldsErrors[InputName.formerName]
+                        ) { formerName = it }
 
-                AppTextInput(
-                    inputLabel = "Localização",
-                    value = farmersState.location,
-                    errorText = farmersState.fieldsErrors[InputName.location]
-                ) { farmersViewModel.fillForm(location = it) }
+                        AppTextInput(
+                            inputLabel = "Localização",
+                            value = farmersState.location,
+                            errorText = farmersState.fieldsErrors[InputName.location]
+                        ) { farmersViewModel.fillForm(location = it) }
 
-                DropDownComponent(
-                    title = "Data de nascimento",
-                    selectedOptionText = if (formerBirthDate != 0L) convertLongToDateString(formerBirthDate) else "",
-                    errorText = farmersState.fieldsErrors[InputName.formerBirthDay]
-                ) { showDatePickerDropDown = true }
+                        AppTextInput(
+                            inputLabel = "Escolaridade",
+                            value = farmersState.schoolarity,
+                            errorText = ""
+                        ) { farmersViewModel.fillForm(schoolarity = it) }
 
-                if (showDatePickerDropDown) {
-                    val datepickerState = rememberDatePickerState()
-                    DatePickerDialog(
-                        onDismissRequest = { showDatePickerDropDown = false },
-                        confirmButton = {
-                            Button(
-                                onClick = {
-                                    datepickerState.selectedDateMillis?.let {
-                                        formerBirthDate = it
-                                        showDatePickerDropDown = false
+                        DropDownComponent(
+                            title = "Data de nascimento",
+                            selectedOptionText = if (formerBirthDate != 0L) convertLongToDateString(
+                                formerBirthDate
+                            ) else "",
+                            errorText = farmersState.fieldsErrors[InputName.formerBirthDay]
+                        ) { showDatePickerDropDown = true }
+
+                        if (showDatePickerDropDown) {
+                            val datepickerState = rememberDatePickerState()
+                            DatePickerDialog(
+                                onDismissRequest = { showDatePickerDropDown = false },
+                                confirmButton = {
+                                    Button(
+                                        onClick = {
+                                            datepickerState.selectedDateMillis?.let {
+                                                formerBirthDate = it
+                                                showDatePickerDropDown = false
+                                            }
+                                        }
+                                    ) {
+                                        Text("Ok")
                                     }
                                 }
                             ) {
-                                Text("Ok")
+                                DatePicker(state = datepickerState)
                             }
                         }
-                    ) {
-                        DatePicker(state = datepickerState)
-                    }
-                }
 
 
-                AppTextInput(
-                    inputLabel = "Área de produção",
-                    value = farmersState.productionArea.toStringFormat(),
-                    errorText = "",
-                    keyboardType = KeyboardType.Number
-                ) {
-                    if (it.matches(Regex("^\\d*\\.?\\d*$"))) {
-                        farmersViewModel.fillForm(productionArea = it.toDouble())
-                    }
-                }
-
-                DropDownComponent(
-                    title = "Exp. Do Agri. (anos)",
-                    selectedOptionText = formerExperience
-                ) {
-                    showUserExperienceDropDown = !showUserExperienceDropDown
-                }
-
-                if (showUserExperienceDropDown) {
-                    DropdownMenu(
-                        expanded = true,
-                        onDismissRequest = { showUserExperienceDropDown = false }
-                    ) {
-                        AgeIntervals.entries.forEach {
-                            DropdownMenuItem(
-                                text = { Text(it.stringValue) },
-                                onClick = { formerExperience = it.stringValue }
-                            )
+                        AppTextInput(
+                            inputLabel = "Área de produção (ha)",
+                            value = farmersState.productionArea,
+                            errorText = "",
+                        ) {
+                            farmersViewModel.fillForm(productionArea = it)
                         }
-                    }
-                }
 
-                DropDownComponent(
-                    title = "Genero",
-                    selectedOptionText = formGenere.genereName
-                ) {
-                    showGenereDropDown = true
-                }
+                        DropDownComponent(
+                            title = "Exp. Do Agri. (anos)",
+                            selectedOptionText = formerExperience
+                        ) {
+                            showUserExperienceDropDown = !showUserExperienceDropDown
+                        }
 
-                if (showGenereDropDown) {
-                    DropdownMenu(
-                        expanded = true,
-                        onDismissRequest = { showGenereDropDown = false }
-                    ) {
-                        Genere.entries.forEach { genere ->
-                            DropdownMenuItem(
-                                text = { Text(genere.genereName) },
-                                onClick = {
-                                    formGenere = genere
-                                    showGenereDropDown = false
+                        if (showUserExperienceDropDown) {
+                            DropdownMenu(
+                                expanded = true,
+                                onDismissRequest = { showUserExperienceDropDown = false }
+                            ) {
+                                AgeIntervals.entries.forEach {
+                                    DropdownMenuItem(
+                                        text = { Text(it.stringValue) },
+                                        onClick = {
+                                            formerExperience = it.stringValue
+                                            showUserExperienceDropDown = false
+                                        }
+                                    )
                                 }
-                            )
+                            }
+                        }
+
+                        DropDownComponent(
+                            title = "Genero",
+                            selectedOptionText = formGenere.genereName
+                        ) {
+                            showGenereDropDown = true
+                        }
+
+                        if (showGenereDropDown) {
+                            DropdownMenu(
+                                expanded = true,
+                                onDismissRequest = { showGenereDropDown = false }
+                            ) {
+                                Genere.entries.forEach { genere ->
+                                    DropdownMenuItem(
+                                        text = { Text(genere.genereName) },
+                                        onClick = {
+                                            formGenere = genere
+                                            showGenereDropDown = false
+                                        }
+                                    )
+                                }
+                            }
                         }
                     }
                 }
-
             }
         }
     }

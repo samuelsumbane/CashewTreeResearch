@@ -14,6 +14,7 @@ import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,8 +49,10 @@ fun EachResearchPage(researchWithFarmer: ResearchWithFarmer) {
                 navigationIcon = {
                     BackButton { navigator.pop() }
                 },
+                colors = TopAppBarDefaults.topAppBarColors(containerColor = Color.DarkGray)
             )
-        }
+        },
+        containerColor = Color.DarkGray
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -69,13 +72,17 @@ fun EachResearchPage(researchWithFarmer: ResearchWithFarmer) {
                 TextItem("Nome", researchWithFarmer.farmer.name)
                 TextItem("Gênero", researchWithFarmer.farmer.genere)
                 HorizontalDivider(modifier = Modifier.fillMaxWidth())
-                TextItem("Mês de pulv", researchWithFarmer.research.puliverizationMonth)
                 TextItem("Ano de produção", researchWithFarmer.research.productionYear)
                 TextItem("Idade do cajueiro", researchWithFarmer.research.cashewTreeAge.toString())
                 TextItem("Quali. produção", researchWithFarmer.research.productionQuality)
                 TextItem("Qtd. produção", researchWithFarmer.research.producedQuantity.toString())
-                TextItem("Preço", researchWithFarmer.research.pricePerKG.toString())
+                TextItem("Preço", "${researchWithFarmer.research.pricePerKG} MT")
                 TextItem("Pulverizado?", booleanString(researchWithFarmer.research.wasPulverized))
+                if (researchWithFarmer.research.wasPulverized) {
+                    TextItem("Fungicida", researchWithFarmer.research.fugicidaName)
+                    TextItem("Mês de pulv.", researchWithFarmer.research.puliverizationMonth)
+                    TextItem("Qtd. Fung. Usada", "${researchWithFarmer.research.usedFugicidaPerYear} ${researchWithFarmer.research.fungicidaUnity}")
+                }
                 TextItem("Doenças", researchWithFarmer.research.deases)
             }
         }

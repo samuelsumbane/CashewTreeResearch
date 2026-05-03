@@ -8,6 +8,7 @@ data class FinalResearch(
     val productionYear: String,
     val fugicidaName: String,
     val usedFugicidaPerYear: Double?,
+    val fungicidaUnity: String,
     val wasPulverized: Boolean,
     val puliverizationMonth: String,
     val cashewTreeAge: String,
@@ -20,7 +21,7 @@ data class FinalResearch(
 
 
 enum class ProductionQuality(val stringValue: String) {
-    High("Alto"),
-    Medium("Médio"),
-    Low("Baixo")
+    High("Alta"),
+    Medium("Média"),
+    Low("Baixa")
 }

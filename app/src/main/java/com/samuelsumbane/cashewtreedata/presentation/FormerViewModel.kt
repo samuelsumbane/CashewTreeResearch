@@ -37,7 +37,8 @@ class  FormerViewModel(
         name: String,
         location: String,
         birthDay: Long,
-        productionArea: Double,
+        schoolarity: String,
+        productionArea: String,
         experienceYear: String,
         genere: String
     ) {
@@ -47,6 +48,7 @@ class  FormerViewModel(
                    name = name,
                    location = location,
                    birthDay = birthDay,
+                   schoolarity = schoolarity,
                    productionArea = productionArea,
                    experienceYear = experienceYear,
                    genere = genere
@@ -66,10 +68,10 @@ class  FormerViewModel(
         } ?: run { 0 }
     }
     @RequiresApi(Build.VERSION_CODES.O)
-    fun generateFinalFormersList(): List<FinalFormer> {
+    fun generateFinalFormersList(givenList: List<Farmer>): List<FinalFormer> {
         return buildList {
-            formersList.value.forEach {
-                add(FinalFormer(it.name, age = calculateAge(it.birthDay), it.experienceYear, it.genere, it.productionArea, it.location))
+            givenList.forEach {
+                add(FinalFormer(it.name, age = calculateAge(it.birthDay), it.birthDay, it.schoolarity, it.experienceYear, it.genere, it.productionArea, it.location))
             }
         }
     }
@@ -88,9 +90,11 @@ class  FormerViewModel(
 
     fun fillForm(
         location: String? = null,
-        productionArea: Double? = null
+        productionArea: String? = null,
+        schoolarity: String? = null
     ) {
         location?.let { farmerLocation -> _state.update { it.copy(location = farmerLocation) } }
         productionArea?.let { pArea -> _state.update { it.copy(productionArea = pArea) } }
+        schoolarity?.let { school -> _state.update { it.copy(schoolarity = school) }}
     }
 }
